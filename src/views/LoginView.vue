@@ -44,8 +44,9 @@ const handleLogin = async () => {
   error.value = null; // Limpiar errores anteriores
   try {
     await signInWithEmailAndPassword(email.value, password.value);
-    // Si el login es exitoso, el guardia de navegación en router/index.js redirigirá
-    // automáticamente al dashboard (ruta '/').
+    // 🚀 Redirige al usuario a la vista DashboardView.vue después de un login exitoso
+    // Asumiendo que DashboardView.vue está mapeado a la ruta raíz '/' en tu router.
+    router.push('/');
   } catch (err) {
     console.error('Error al iniciar sesión:', err.message);
     error.value = err.message || 'Error desconocido al iniciar sesión.';

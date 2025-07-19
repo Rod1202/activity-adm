@@ -2,9 +2,14 @@
   <div class="phone-mockup dashboard-mockup">
     <header class="dashboard-header">
       <h1 class="welcome-title">BIENVENIDO {{ userName }}</h1>
-      <button class="add-button" @click="goToRegisterActivity">
-        <span class="plus-icon">+</span>
-      </button>
+      <div class="header-buttons">
+        <button class="logout-button" @click="handleLogout">
+          Cerrar Sesión
+        </button>
+        <button class="add-button" @click="goToRegisterActivity">
+          <span class="plus-icon">+</span>
+        </button>
+      </div>
     </header>
 
     <main class="dashboard-content">
@@ -38,7 +43,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getCurrentUser } from '@/services/authService';
-import { supabase } from '@/services/supabaseClient'; // Para cargar actividades
+import { supabase } from '@/services/supabaseClient'; // Para cargar actividades y cerrar sesión
 
 // Importa los componentes que aún no has creado, los haremos a continuación
 import ActivityCard from '@/components/ActivityCard.vue';
@@ -97,15 +102,27 @@ const goToRegisterActivity = () => {
   router.push('/register-activity');
 };
 
+// Nueva función para cerrar sesión
+const handleLogout = async () => {
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      throw error;
+    }
+    // Redirigir al usuario a la página de inicio de sesión o a la página principal
+    router.push('/login'); // Asegúrate de que esta ruta sea la correcta para tu página de inicio de sesión
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error.message);
+    alert('No se pudo cerrar sesión. Por favor, intenta de nuevo.');
+  }
+};
+
+
 onMounted(async () => {
   // Obtener el nombre del usuario al cargar el componente
   try {
     const user = await getCurrentUser();
     if (user) {
-      // Supabase Auth no almacena el nombre por defecto, solo email.
-      // Si quieres mostrar un nombre, necesitarás almacenarlo en user_metadata
-      // o en tu tabla 'Admins' y luego hacer un JOIN o fetch adicional.
-      // Por ahora, mostraremos la primera parte del email o un nombre predeterminado.
       if (user.user_metadata && user.user_metadata.full_name) {
         userName.value = user.user_metadata.full_name.split(' ')[0].toUpperCase();
       } else if (user.email) {
@@ -115,27 +132,28 @@ onMounted(async () => {
     fetchActivities(); // Cargar actividades al montar el dashboard
   } catch (error) {
     console.error('Error al obtener usuario o actividades en dashboard:', error.message);
-    // Si hay un error al obtener el usuario, el guardia de navegación debería manejar la redirección
   }
 });
 </script>
 
 <style scoped>
+/* Contenedor principal del mockup (manteniendo la simulación de teléfono para este componente) */
 .phone-mockup {
   width: 100%;
-  max-width: 400px; /* Ancho típico de un teléfono */
+  max-width: 400px; /* Ancho típico de un teléfono en escritorio */
   background: #fff;
   border-radius: 30px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   min-height: 700px; /* Altura para simular un teléfono */
-  overflow: hidden; /* Asegura que el contenido no se desborde del mockup */
+  overflow: hidden;
   position: relative;
+  /* Eliminamos el margin auto aquí si el padre (#app) ya lo centra globalmente */
 }
 
 .dashboard-mockup {
-  padding: 0; /* Quitamos padding aquí para que el header y main ocupen todo el ancho */
+  padding: 0;
 }
 
 .dashboard-header {
@@ -143,7 +161,7 @@ onMounted(async () => {
   color: white;
   padding: 25px 30px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Para separar el título de los botones */
   align-items: center;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-top-left-radius: 30px;
@@ -155,6 +173,13 @@ onMounted(async () => {
   font-weight: 700;
   margin: 0;
   text-transform: uppercase;
+  flex-grow: 1; /* Permite que el título ocupe el espacio restante */
+}
+
+.header-buttons {
+  display: flex;
+  gap: 15px; /* Espacio entre el botón de cerrar sesión y el de añadir */
+  align-items: center;
 }
 
 .add-button {
@@ -169,6 +194,7 @@ onMounted(async () => {
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: background-color 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0; /* Evita que el botón se encoja */
 }
 
 .add-button:hover {
@@ -184,6 +210,31 @@ onMounted(async () => {
   font-size: 30px;
   color: white;
   line-height: 1; /* Para centrar el '+' */
+}
+
+/* Estilos para el nuevo botón de cerrar sesión */
+.logout-button {
+  background-color: #f44336; /* Un color rojo distintivo */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px; /* Ajustado para que sea un poco más pequeño que el de registro */
+  font-size: 0.95em; /* Un poco más pequeño que el texto normal */
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0; /* Evita que el botón se encoja */
+}
+
+.logout-button:hover {
+  background-color: #d32f2f; /* Tono más oscuro al pasar el ratón */
+  transform: translateY(-2px);
+}
+
+.logout-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-content {
@@ -217,5 +268,57 @@ onMounted(async () => {
   border-bottom-left-radius: 30px;
   border-bottom-right-radius: 30px;
   z-index: 10;
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+  /* En móvil, el phone-mockup ya debería ser de extremo a extremo por los estilos globales */
+  .phone-mockup {
+    max-width: none; /* Elimina el límite de ancho máximo para móvil */
+    border-radius: 0; /* Quita los bordes redondeados */
+    min-height: 100vh; /* Ocupa toda la altura */
+    box-shadow: none; /* Elimina la sombra */
+  }
+
+  .dashboard-header {
+    flex-direction: column; /* Apila el título y los botones */
+    align-items: flex-start;
+    padding: 20px;
+    border-top-left-radius: 0; /* Quita bordes redondeados del header en móvil */
+    border-top-right-radius: 0;
+  }
+
+  .welcome-title {
+    font-size: 1.8em;
+    margin-bottom: 15px; /* Espacio entre título y botones */
+  }
+
+  .header-buttons {
+    width: 100%; /* Los botones ocupan todo el ancho disponible */
+    justify-content: space-around; /* Distribuye los botones equitativamente */
+    gap: 10px; /* Ajusta el espacio entre los botones en móvil */
+  }
+
+  .logout-button, .add-button {
+    flex-grow: 1; /* Permite que ambos botones crezcan para llenar el espacio */
+    padding: 12px 15px; /* Ajusta el padding para que no sean demasiado grandes */
+    font-size: 1em;
+    height: auto; /* Permite que la altura se ajuste con el padding */
+    border-radius: 8px; /* Haz el botón de añadir cuadrado también en móvil */
+  }
+
+  .add-button .plus-icon {
+      font-size: 24px; /* Ajusta el tamaño del icono más para móvil */
+  }
+
+  .dashboard-content {
+    padding: 15px 20px; /* Ajusta el padding para móviles */
+    border-radius: 0; /* Sin bordes redondeados en móvil */
+  }
+
+  .day-navigation {
+    border-bottom-left-radius: 0; /* Quita los bordes redondeados del navegador de días */
+    border-bottom-right-radius: 0;
+  }
 }
 </style>
