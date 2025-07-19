@@ -1,0 +1,109 @@
+/* src/style.css */
+@import url('https://cdn-uicons.flaticon.com/2.2.0/uicons-regular-straight/css/uicons-regular-straight.css');
+@import url('https://cdn-uicons.flaticon.com/2.2.0/uicons-solid-rounded/css/uicons-solid-rounded.css');
+
+/* Estilos globales para la aplicación */
+:root {
+    --primary-color: #4A55A2;
+    --secondary-color: #667EEA;
+    --background-color: #f0f2f5; /* Color de fondo para el escritorio (gris claro) */
+    --card-background: #ffffff; /* Color de fondo del card principal (blanco) */
+    --text-color-dark: #333;
+    --text-color-medium: #555;
+    --text-color-light: #777;
+    --error-color: #d32f2f;
+    --success-color: #4CAF50;
+}
+
+/* Base para HTML, Body y el contenedor #app */
+/* Aseguramos que ocupen el 100% del espacio y no tengan márgenes/rellenos por defecto */
+html, body, #app {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh; /* Ocupa al menos el 100% del alto de la ventana */
+    box-sizing: border-box; /* Incluye padding y borde en el tamaño total */
+}
+
+/* Estilos del Body (por defecto: ESCRITORIO) */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--text-color-dark);
+    background-color: var(--background-color); /* Fondo gris claro para el escritorio */
+    display: flex; /* Para permitir centrar el contenido principal */
+    justify-content: center; /* Centra horizontalmente el #app en el escritorio */
+    align-items: center; /* Centra verticalmente el #app en el escritorio */
+    padding: 20px; /* Un poco de padding alrededor del card en escritorio */
+}
+
+/* Estilos del contenedor #app (por defecto: ESCRITORIO) */
+#app {
+    /* En escritorio, #app contendrá el phone-mockup y se alineará al centro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; /* Ocupará el 100% del espacio disponible que le deje el body */
+    height: 100%; /* Ocupará el 100% del espacio disponible que le deje el body */
+}
+
+/* Media Query para MÓVILES */
+/* Cuando el ancho de la pantalla es menor o igual a 768px (típico para móviles y tablets pequeñas) */
+@media (max-width: 768px) {
+    body {
+        background-color: var(--card-background); /* El body se vuelve blanco (color del card) */
+        padding: 0; /* Elimina el padding para que el contenido llegue a los bordes */
+        /* En móvil, queremos que el contenido (el #app) se alinee al inicio y no haya centrado del body */
+        justify-content: flex-start; /* Alinea el contenido al inicio (arriba) */
+        align-items: flex-start; /* Alinea el contenido al inicio (izquierda) */
+    }
+
+    #app {
+        /* En móvil, #app también ocupa todo el espacio y no necesita centrar */
+        display: flex;
+        flex-direction: column; /* Asegura que los hijos se apilen */
+        width: 100%; /* Ocupa todo el ancho */
+        min-height: 100vh; /* Ocupa toda la altura disponible */
+        justify-content: flex-start; /* Alinea el contenido al inicio (arriba) */
+        align-items: flex-start; /* Alinea el contenido al inicio (izquierda) */
+    }
+}
+
+/* Estilos base para formularios (estos permanecen igual) */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-color-medium);
+    font-size: 14px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    background-color: #fff;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(74, 85, 162, 0.2);
+}
+
+.form-input::placeholder {
+    color: #bbb;
+}
+
+.error-message {
+    color: var(--error-color);
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
