@@ -1,29 +1,29 @@
 <template>
-  <div class="phone-mockup">
-    <div class="login-header">
-      <h1 class="login-title">Login</h1>
-    </div>
-
-    <form @submit.prevent="handleLogin">
-      <div class="form-group">
-        <label for="email" class="form-label">correo electrónico</label>
-        <input type="email" id="email" v-model="email" class="form-input" placeholder="tu@correo.com" required>
+  <div class="login-container">
+    <div class="login-card single-card">
+      <img src="@/assets/logo.png" alt="Logo de la empresa" class="login-logo" />
+      <div class="login-form-center-group">
+        <form @submit.prevent="handleLogin">
+          <div class="form-group">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" v-model="email" class="form-input" placeholder="Email" required>
+          </div>
+          <div class="form-group">
+            <label for="password" class="form-label">Contraseña</label>
+            <input type="password" id="password" v-model="password" class="form-input" placeholder="Contraseña" required>
+            <div class="forgot-link-row left-align">
+              <a class="forgot-link" href="#" target="_blank">¿Olvidaste la contraseña?</a>
+            </div>
+          </div>
+          <button type="submit" class="login-button" :disabled="isLoading">
+            {{ isLoading ? 'Iniciando...' : 'Iniciar sesión' }}
+          </button>
+          <p v-if="error" class="error-message">{{ error }}</p>
+        </form>
       </div>
-
-      <div class="form-group">
-        <label for="password" class="form-label">contraseña</label>
-        <input type="password" id="password" v-model="password" class="form-input" placeholder="tu contraseña" required>
+      <div class="login-footer">
+        Power by Rodrigo Carbonel®
       </div>
-
-      <button type="submit" class="login-button" :disabled="isLoading">
-        {{ isLoading ? 'Iniciando...' : 'Iniciar sesión' }}
-      </button>
-
-      <p v-if="error" class="error-message">{{ error }}</p>
-    </form>
-
-    <div class="forgot-password-link">
-      <a href="#" @click.prevent="showForgotPasswordAlert">¿Olvidaste la contraseña?</a>
     </div>
   </div>
 </template>
@@ -41,11 +41,9 @@ const router = useRouter();
 
 const handleLogin = async () => {
   isLoading.value = true;
-  error.value = null; // Limpiar errores anteriores
+  error.value = null;
   try {
     await signInWithEmailAndPassword(email.value, password.value);
-    // 🚀 Redirige al usuario a la vista DashboardView.vue después de un login exitoso
-    // Asumiendo que DashboardView.vue está mapeado a la ruta raíz '/' en tu router.
     router.push('/');
   } catch (err) {
     console.error('Error al iniciar sesión:', err.message);
@@ -54,106 +52,182 @@ const handleLogin = async () => {
     isLoading.value = false;
   }
 };
-
-const showForgotPasswordAlert = () => {
-  alert('Esta funcionalidad aún no está implementada. Por favor, contacta al administrador.');
-};
 </script>
 
 <style scoped>
-/* Estilos específicos para LoginView, puedes moverlos a un archivo CSS separado si prefieres */
-.phone-mockup {
-    width: 100%;
-    max-width: 400px;
-    background: #fff;
-    border-radius: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    padding: 40px 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    min-height: 600px;
-    justify-content: center;
+.login-container {
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7f7f7;
+  margin: 0;
+  padding: 0;
 }
 
-.login-header {
-    text-align: center;
-    margin-bottom: 30px;
+.login-card.single-card {
+  width: 520px;
+  height: 800px;
+  max-width: 98vw;
+  background: #fff;
+  border-radius: 60px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 40px;
+  margin: 0;
+  position: relative;
+  justify-content: flex-start;
 }
 
-.login-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text-color-dark);
+.login-logo {
+  max-width: 220px;
+  width: 60%;
+  height: auto;
+  opacity: 0.98;
+  object-fit: contain;
+  margin: 130px auto 24px auto;
+  display: block;
+}
+
+.login-form-center-group {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.form-group {
+  margin-bottom: 18px;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--accent-darkblue);
+}
+
+.form-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 2px solid #000;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  background: #fff;
+  transition: border 0.2s;
+  color: var(--accent-darkblue);
+  margin: 0;
+}
+.form-input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.forgot-link-row.left-align {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 6px;
+}
+.forgot-link {
+  font-size: 0.98em;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+.forgot-link:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
 }
 
 .login-button {
-    width: 100%;
-    padding: 16px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-top: 10px;
+  width: 100%;
+  padding: 13px;
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
-
 .login-button:hover:not(:disabled) {
-    background-color: #3a458f;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--accent-darkblue);
 }
-
-.login-button:active:not(:disabled) {
-    transform: translateY(0);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
 .login-button:disabled {
-  background-color: #a0a8d3;
+  background: #bbb;
   cursor: not-allowed;
 }
 
-.forgot-password-link {
-    text-align: center;
-    margin-top: 25px;
+.error-message {
+  color: var(--error-color);
+  text-align: center;
+  margin-top: 18px;
+  font-size: 1em;
+  font-weight: 500;
 }
 
-.forgot-password-link a {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 500;
-    transition: color 0.2s ease;
+.login-footer {
+  width: 100%;
+  text-align: center;
+  font-size: 0.95em;
+  color: var(--accent-darkblue);
+  opacity: 0.7;
+  position: absolute;
+  bottom: 18px;
+  left: 0;
 }
 
-.forgot-password-link a:hover {
-    color: #3a458f;
-    text-decoration: underline;
-}
-
-@media (max-width: 420px) {
-    .phone-mockup {
-        padding: 30px 20px;
-        border-radius: 20px;
-        min-height: 500px;
-    }
-    .login-title {
-        font-size: 28px;
-    }
-    .form-input {
-        padding: 12px 15px;
-        font-size: 15px;
-    }
-    .login-button {
-        padding: 14px;
-        font-size: 16px;
-    }
-    .forgot-password-link {
-        margin-top: 20px;
-    }
+@media (max-width: 700px) {
+  .login-card.single-card {
+    width: 100vw;
+    height: 100vh;
+    min-height: 100vh;
+    border-radius: 0;
+    padding: 0 5vw;
+    box-shadow: none;
+    justify-content: flex-start;
+  }
+  .login-logo {
+    max-width: 250px;
+    width: 140vw;
+    margin: 120px auto 18px auto;
+  }
+  .login-form-center-group {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    min-height: 0;
+    height: calc(100vh - 180px); /* Ajusta según el tamaño del logo y footer */
+  }
+  .login-footer {
+    font-size: 0.85em;
+    bottom: 12px;
+    left: 0;
+    right: 0;
+    position: absolute;
+  }
 }
 </style>

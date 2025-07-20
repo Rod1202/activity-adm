@@ -65,7 +65,8 @@
           </div>
         </div>
 
-        <div class="chronometer-section">
+        <!-- Solo mostrar el cronómetro si no se está editando la hora de fin manual -->
+        <div class="chronometer-section" v-if="!showEditEndTime">
           <p class="chronometer-display">{{ formatDuration(chronometerSeconds) }}</p>
           <div class="chronometer-controls">
             <button type="button" class="start-button" @click="startChronometer" :disabled="isChronometerRunning">Iniciar</button>
@@ -76,7 +77,7 @@
 
         <div class="form-group">
           <label for="description" class="form-label">Descripción (opcional)</label>
-          <textarea id="description" v-model="description" class="form-input" rows="3" placeholder="Describe los detalles de la actividad..."></textarea>
+          <input id="description" v-model="description" class="form-input" type="text" placeholder="Describe los detalles de la actividad..." maxlength="255" />
         </div>
 
         <div class="action-buttons">
@@ -86,7 +87,13 @@
         </div>
 
         <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+        <!-- Reemplazar el mensaje de error por un icono flotante -->
+        <div v-if="errorMessage" class="floating-error-icon" :title="errorMessage">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="12" fill="#fff"/>
+            <path d="M8 8L16 16M16 8L8 16" stroke="#d32f2f" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
       </form>
     </main>
   </div>
@@ -156,18 +163,24 @@ const formatDuration = (totalSeconds) => {
 // --- Funciones de formulario y Supabase ---
 const fetchClientsAndCategories = async () => {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      errorMessage.value = 'Usuario no autenticado. Por favor, inicia sesión.';
+      router.push('/login');
+      return;
+    }
     const { data: clientsData, error: clientsError } = await supabase
-      .from('Clientes')
-      .select('cliente_id, nombre_cliente');
+      .from('clientes')
+      .select('cliente_id, nombre_cliente')
+      .eq('adm_id', user.id);
     if (clientsError) throw clientsError;
     clients.value = clientsData || [];
 
     const { data: categoriesData, error: categoriesError } = await supabase
-      .from('CategoriasActividad')
+      .from('categoriasactividad')
       .select('categoria_id, nombre_categoria');
     if (categoriesError) throw categoriesError;
     categories.value = categoriesData || [];
-
   } catch (error) {
     console.error('Error fetching clients or categories:', error.message);
     errorMessage.value = 'Error al cargar clientes o categorías.';
@@ -245,7 +258,7 @@ const saveActivity = async () => {
 
 
     const { error } = await supabase
-      .from('Actividades')
+      .from('actividades')
       .insert({
         cliente_id: selectedClient.value,
         categoria_id: selectedCategory.value,
@@ -255,7 +268,8 @@ const saveActivity = async () => {
         hora_fin: finalEndTime,
         duracion_segundos: finalDurationSeconds,
         prioridad: priority.value,
-        adm_id: user.id
+        adm_id: user.id,
+        usado_cronometro: showEditEndTime.value ? false : true
       });
 
     if (error) {
@@ -306,17 +320,17 @@ onUnmounted(() => {
 /* Contenedor principal y estructura general */
 /* Este contenedor ahora se adaptará al ancho de la pantalla */
 .phone-mockup {
-  width: 90%; /* Ocupa el 90% del ancho del viewport en escritorio */
-  max-width: 800px; /* Ancho máximo para que no se extienda demasiado en monitores muy grandes */
+  width: 100%;
+  max-width: 1000px; /* Ancho amplio para escritorio */
   background: #fff;
   border-radius: 30px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  min-height: 700px; /* Altura mínima para que no se vea demasiado pequeño */
+  height: 800px; /* Altura ajustada a 900px para evitar scrollbar */
   overflow: hidden;
   position: relative;
-  margin: 20px auto; /* Centra el contenedor en el escritorio y añade un poco de margen */
+  margin: 20px auto; /* Centra el contenedor */
 }
 
 .register-activity-mockup {
@@ -326,7 +340,7 @@ onUnmounted(() => {
 /* Encabezado */
 .register-activity-header {
   background-color: var(--primary-color);
-  color: white;
+  color: #fff;
   padding: 25px 30px;
   display: flex;
   justify-content: space-between;
@@ -335,6 +349,7 @@ onUnmounted(() => {
   border-top-left-radius: 30px;
   border-top-right-radius: 30px;
   position: relative;
+  flex-shrink: 0; /* Evita que el header se encoja */
 }
 
 .register-activity-header .title {
@@ -349,7 +364,7 @@ onUnmounted(() => {
   background: none;
   border: none;
   font-size: 28px;
-  color: white;
+  color: #fff;
   cursor: pointer;
   position: absolute;
   left: 20px;
@@ -361,7 +376,7 @@ onUnmounted(() => {
 }
 
 .back-button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--accent-purple);
 }
 
 /* Contenido principal del formulario */
@@ -369,18 +384,21 @@ onUnmounted(() => {
   flex-grow: 1;
   padding: 20px 30px;
   overflow-y: auto;
+  min-height: 0; /* Permite que el contenido se encoja si es necesario */
+  position: relative; /* Para posicionar el error de forma absoluta */
 }
 
 /* Grupos de formulario */
 .form-group {
   margin-bottom: 20px;
+  flex-shrink: 0; /* Evita que los grupos se encojan */
 }
 
 .form-label {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: var(--text-color-medium);
+  color: var(--accent-darkblue);
   font-size: 14px;
 }
 
@@ -398,7 +416,7 @@ onUnmounted(() => {
 
 .form-input:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(74, 85, 162, 0.2);
+  box-shadow: 0 0 0 3px rgba(0, 102, 246, 0.15);
 }
 
 /* Estilos específicos para select */
@@ -412,10 +430,9 @@ select.form-input {
   padding-right: 30px;
 }
 
-/* Estilos específicos para textarea */
+/* Eliminar el estilo específico de textarea.form-input si existe */
 textarea.form-input {
-  resize: vertical;
-  min-height: 80px;
+  /* eliminado para que no afecte al nuevo input */
 }
 
 /* Diseño de dos columnas para algunos grupos */
@@ -484,37 +501,39 @@ textarea.form-input {
 /* Sección del cronómetro */
 .chronometer-section {
   text-align: center;
-  margin-bottom: 30px;
-  background-color: #f5f5f5;
-  border-radius: 15px;
-  padding: 25px 20px;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 10px; /* Más reducido */
+  background-color: var(--secondary-color);
+  color: #fff;
+  border-radius: 12px;
+  padding: 8px 6px; /* Más reducido */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
 }
 
 .chronometer-display {
-  font-size: 3.5em;
+  font-size: 1.4em; /* Más reducido */
   font-weight: 700;
-  color: var(--primary-color);
-  margin-bottom: 20px;
+  color: #7a7a7a;
+  margin-bottom: 6px; /* Más reducido */
   font-family: 'Roboto Mono', monospace;
 }
 
 .chronometer-controls {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  margin-bottom: 15px;
+  gap: 6px; /* Más reducido */
+  margin-bottom: 4px; /* Más reducido */
 }
 
 .chronometer-controls button {
-  padding: 15px 30px;
+  padding: 6px 12px; /* Más reducido */
   border: none;
-  border-radius: 10px;
-  font-size: 1.1em;
+  border-radius: 8px;
+  font-size: 0.95em; /* Más reducido */
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .start-button {
@@ -554,8 +573,9 @@ textarea.form-input {
 }
 
 .chronometer-status {
-  font-size: 0.9em;
+  font-size: 0.75em; /* Más reducido */
   color: var(--text-color-medium);
+  margin-bottom: 0;
 }
 
 /* Botones de acción al final del formulario */
@@ -563,6 +583,7 @@ textarea.form-input {
   display: flex;
   justify-content: center;
   margin-top: 30px;
+  flex-shrink: 0; /* Evita que los botones se encojan */
 }
 
 .action-buttons button {
@@ -583,11 +604,11 @@ textarea.form-input {
 
 .register-button {
   background-color: var(--primary-color);
-  color: white;
+  color: #fff;
 }
 
 .register-button:hover:not(:disabled) {
-  background-color: #3a458f;
+  background-color: var(--accent-darkblue);
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.18);
 }
@@ -610,14 +631,22 @@ textarea.form-input {
   margin-top: 20px;
   font-size: 15px;
   font-weight: 500;
+  flex-shrink: 0; /* Evita que los mensajes se encojan */
 }
 
 .error-message {
   color: var(--error-color);
   text-align: center;
-  margin-top: 20px;
   font-size: 15px;
   font-weight: 500;
+  flex-shrink: 0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  margin: 0 auto;
+  background: transparent;
+  z-index: 2;
 }
 
 /* Media queries para responsividad */
@@ -626,7 +655,7 @@ textarea.form-input {
     width: 100%; /* Ocupa todo el ancho en pantallas más pequeñas */
     max-width: none; /* Elimina el límite de ancho máximo */
     border-radius: 0; /* Sin bordes redondeados en los extremos para ocupar toda la pantalla */
-    min-height: 100vh; /* Ocupa toda la altura de la vista */
+    height: 100vh; /* Ocupa toda la altura de la vista */
     margin: 0; /* Elimina el margen para que se pegue a los bordes */
     box-shadow: none; /* Quita la sombra para una apariencia de "app" nativa */
   }
@@ -666,5 +695,28 @@ textarea.form-input {
     height: 45px;
     padding: 0;
   }
+}
+
+/* Icono flotante de error */
+.floating-error-icon {
+  position: fixed;
+  left: 40px;
+  bottom: 40px;
+  z-index: 1000;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  padding: 4px;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.floating-error-icon:hover {
+  box-shadow: 0 4px 16px rgba(211,47,47,0.18);
+}
+.floating-error-icon svg {
+  display: block;
 }
 </style>

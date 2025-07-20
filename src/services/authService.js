@@ -34,3 +34,12 @@ export const getCurrentUser = async () => {
   }
   return user;
 };
+
+// Ejemplo de obtención de datos del admin:
+export async function getCurrentAdmin(userId) {
+  return await supabase
+    .from('admins')
+    .select('*')
+    .eq('id', userId)
+    .single();
+}

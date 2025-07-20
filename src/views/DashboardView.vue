@@ -2,9 +2,9 @@
   <div class="phone-mockup dashboard-mockup">
     <header class="dashboard-header">
       <h1 class="welcome-title">BIENVENIDO {{ userName }}</h1>
-      <div class="header-buttons">
-        <button class="logout-button" @click="handleLogout">
-          Cerrar Sesión
+      <div class="header-actions">
+        <button class="icon-button logout-icon" @click="handleLogout" title="Cerrar Sesión">
+          <i class="fi fi-rs-sign-out-alt"></i>
         </button>
         <button class="add-button" @click="goToRegisterActivity">
           <span class="plus-icon">+</span>
@@ -43,40 +43,32 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getCurrentUser } from '@/services/authService';
-import { supabase } from '@/services/supabaseClient'; // Para cargar actividades y cerrar sesión
+import { supabase } from '@/services/supabaseClient';
 
-// Importa los componentes que aún no has creado, los haremos a continuación
 import ActivityCard from '@/components/ActivityCard.vue';
 import DayNavigation from '@/components/DayNavigation.vue';
 
 const router = useRouter();
-const userName = ref('...'); // Placeholder para el nombre del usuario
-const selectedDate = ref(new Date()); // Fecha actual por defecto
+const userName = ref('...');
+const selectedDate = ref(new Date());
 const activities = ref([]);
 const isLoadingActivities = ref(false);
 
-// Función para obtener las actividades del día seleccionado
 const fetchActivities = async () => {
   isLoadingActivities.value = true;
   try {
     const user = await getCurrentUser();
     if (!user) {
-      router.push('/login'); // Si no hay usuario, redirige al login
+      router.push('/login');
       return;
     }
 
-    // Formatear la fecha a YYYY-MM-DD para la consulta SQL
     const formattedDate = selectedDate.value.toISOString().split('T')[0];
 
-    // Consultar Supabase para las actividades del usuario logueado en la fecha seleccionada
     const { data, error } = await supabase
-      .from('Actividades')
-      .select(`
-        *,
-        Clientes(nombre_cliente),
-        CategoriasActividad(nombre_categoria)
-      `)
-      .eq('adm_id', user.id) // Filtra por el ID del usuario de Supabase Auth
+      .from('actividades')
+      .select('*, clientes(nombre_cliente), categoriasactividad(nombre_categoria)')
+      .eq('adm_id', user.id)
       .eq('fecha_actividad', formattedDate)
       .order('hora_inicio', { ascending: true });
 
@@ -86,8 +78,7 @@ const fetchActivities = async () => {
     activities.value = data || [];
   } catch (err) {
     console.error('Error al cargar actividades:', err.message);
-    activities.value = []; // Vaciar actividades si hay error
-    // Aquí podrías mostrar una notificación al usuario de que hubo un error
+    activities.value = [];
   } finally {
     isLoadingActivities.value = false;
   }
@@ -95,31 +86,27 @@ const fetchActivities = async () => {
 
 const handleDateChange = (newDate) => {
   selectedDate.value = newDate;
-  fetchActivities(); // Recargar actividades al cambiar la fecha
+  fetchActivities();
 };
 
 const goToRegisterActivity = () => {
   router.push('/register-activity');
 };
 
-// Nueva función para cerrar sesión
 const handleLogout = async () => {
   try {
     const { error } = await supabase.auth.signOut();
     if (error) {
       throw error;
     }
-    // Redirigir al usuario a la página de inicio de sesión o a la página principal
-    router.push('/login'); // Asegúrate de que esta ruta sea la correcta para tu página de inicio de sesión
+    router.push('/login');
   } catch (error) {
     console.error('Error al cerrar sesión:', error.message);
     alert('No se pudo cerrar sesión. Por favor, intenta de nuevo.');
   }
 };
 
-
 onMounted(async () => {
-  // Obtener el nombre del usuario al cargar el componente
   try {
     const user = await getCurrentUser();
     if (user) {
@@ -129,7 +116,7 @@ onMounted(async () => {
         userName.value = user.email.split('@')[0].toUpperCase();
       }
     }
-    fetchActivities(); // Cargar actividades al montar el dashboard
+    fetchActivities();
   } catch (error) {
     console.error('Error al obtener usuario o actividades en dashboard:', error.message);
   }
@@ -140,16 +127,16 @@ onMounted(async () => {
 /* Contenedor principal del mockup (manteniendo la simulación de teléfono para este componente) */
 .phone-mockup {
   width: 100%;
-  max-width: 400px; /* Ancho típico de un teléfono en escritorio */
+  max-width: 1000px; /* Ancho igual que RegisterActivityView.vue */
   background: #fff;
   border-radius: 30px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  min-height: 700px; /* Altura para simular un teléfono */
+  height: 800px; /* Altura igual que RegisterActivityView.vue */
   overflow: hidden;
   position: relative;
-  /* Eliminamos el margin auto aquí si el padre (#app) ya lo centra globalmente */
+  margin: 20px auto; /* Centra el contenedor */
 }
 
 .dashboard-mockup {
@@ -158,7 +145,7 @@ onMounted(async () => {
 
 .dashboard-header {
   background-color: var(--primary-color);
-  color: white;
+  color: #fff;
   padding: 25px 30px;
   display: flex;
   justify-content: space-between; /* Para separar el título de los botones */
@@ -166,6 +153,7 @@ onMounted(async () => {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-top-left-radius: 30px;
   border-top-right-radius: 30px;
+  flex-shrink: 0; /* Evita que el header se encoja */
 }
 
 .welcome-title {
@@ -174,11 +162,13 @@ onMounted(async () => {
   margin: 0;
   text-transform: uppercase;
   flex-grow: 1; /* Permite que el título ocupe el espacio restante */
+  color: #fff;
 }
 
-.header-buttons {
+/* Renombramos 'header-buttons' a 'header-actions' para mayor claridad */
+.header-actions {
   display: flex;
-  gap: 15px; /* Espacio entre el botón de cerrar sesión y el de añadir */
+  gap: 15px; /* Espacio entre el icono de cerrar sesión y el botón de añadir */
   align-items: center;
 }
 
@@ -198,7 +188,7 @@ onMounted(async () => {
 }
 
 .add-button:hover {
-  background-color: #5a6ed1;
+  background-color: var(--accent-purple);
   transform: translateY(-2px);
 }
 
@@ -206,36 +196,46 @@ onMounted(async () => {
   transform: translateY(0);
 }
 
+.add-button:disabled {
+  background-color: #e5e7eb;
+  color: #bdbdbd;
+}
+
 .plus-icon {
   font-size: 30px;
-  color: white;
+  color: var(--primary-color);
   line-height: 1; /* Para centrar el '+' */
 }
 
-/* Estilos para el nuevo botón de cerrar sesión */
-.logout-button {
-  background-color: #f44336; /* Un color rojo distintivo */
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 18px; /* Ajustado para que sea un poco más pequeño que el de registro */
-  font-size: 0.95em; /* Un poco más pequeño que el texto normal */
-  font-weight: 600;
+/* Nuevos estilos para el icono de cerrar sesión */
+.icon-button {
+  background: none; /* Sin fondo */
+  border: none; /* Sin borde */
+  color: white; /* Color del icono */
+  font-size: 24px; /* Tamaño del icono */
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0; /* Evita que el botón se encoja */
+  padding: 8px; /* Pequeño padding para el área de clic */
+  border-radius: 50%; /* Hacerlo circular al pasar el ratón */
+  transition: background-color 0.2s ease, color 0.2s ease;
+  display: flex; /* Para centrar el icono si es necesario */
+  justify-content: center;
+  align-items: center;
 }
 
-.logout-button:hover {
-  background-color: #d32f2f; /* Tono más oscuro al pasar el ratón */
-  transform: translateY(-2px);
+.icon-button:hover {
+  background-color: var(--accent-pink);
 }
 
-.logout-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.icon-button:active {
+  background-color: rgba(255, 255, 255, 0.3);
 }
+
+/* Ajustes específicos para el icono de logout */
+.logout-icon i {
+  color: white; /* Asegura que el icono sea blanco */
+  font-size: 24px; /* Asegura el tamaño del icono */
+}
+
 
 .dashboard-content {
   flex-grow: 1;
@@ -244,15 +244,17 @@ onMounted(async () => {
   padding: 20px 30px;
   overflow-y: auto;
   padding-bottom: 100px; /* Espacio para la navegación de días flotante */
+  min-height: 0; /* Permite que el contenido se encoja si es necesario */
 }
 
 .activity-list {
   flex-grow: 1;
+  min-height: 0; /* Permite que la lista se encoja */
 }
 
 .no-activities-message, .loading-message {
   text-align: center;
-  color: var(--text-color-light);
+  color: var(--accent-darkblue);
   margin-top: 50px;
   font-size: 1.1em;
 }
@@ -263,61 +265,143 @@ onMounted(async () => {
   left: 0;
   right: 0;
   background-color: #fff;
-  padding: 15px 10px;
+  padding: 20px 30px; /* Aumentamos el padding para mejor distribución */
   box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
   border-bottom-left-radius: 30px;
   border-bottom-right-radius: 30px;
   z-index: 10;
+  flex-shrink: 0; /* Evita que la navegación se encoja */
+  display: flex;
+  justify-content: center; /* Centra los cards horizontalmente */
+  align-items: center;
+}
+
+/* Estilos para mejorar la distribución de los cards de fecha */
+.day-navigation :deep(.day-navigation-container) {
+  display: flex;
+  gap: 20px; /* Espacio uniforme entre cards */
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 700px; /* Limita el ancho máximo para mejor distribución */
+  padding: 0; /* Eliminamos el padding del componente para controlarlo desde aquí */
+}
+
+.day-navigation :deep(.day-button) {
+  flex: 1;
+  min-width: 90px; /* Ancho mínimo para cada botón */
+  max-width: 130px; /* Ancho máximo para evitar botones muy anchos */
+  height: 80px; /* Altura fija para mejor proporción */
+  background-color: #f5f5f5;
+  border: 2px solid transparent;
+  border-radius: 15px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  color: var(--text-color-medium);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.day-navigation :deep(.day-button:hover) {
+  background-color: #e8e8e8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.day-navigation :deep(.day-button.active) {
+  background-color: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(74, 85, 162, 0.3);
+}
+
+.day-navigation :deep(.day-button:not(.active)) {
+  background-color: #d1d5db;
+  color: #fff;
+}
+
+.day-navigation :deep(.day-button.active .day-name),
+.day-navigation :deep(.day-button.active .day-month),
+.day-navigation :deep(.day-button.active .day-number) {
+  color: white;
+}
+
+.day-navigation :deep(.day-name) {
+  font-weight: 600;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.day-navigation :deep(.day-month) {
+  font-size: 10px;
+  opacity: 0.9;
+  margin-bottom: 2px;
+}
+
+.day-navigation :deep(.day-number) {
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 2px;
 }
 
 /* Media queries para responsividad */
 @media (max-width: 768px) {
-  /* En móvil, el phone-mockup ya debería ser de extremo a extremo por los estilos globales */
   .phone-mockup {
-    max-width: none; /* Elimina el límite de ancho máximo para móvil */
-    border-radius: 0; /* Quita los bordes redondeados */
-    min-height: 100vh; /* Ocupa toda la altura */
-    box-shadow: none; /* Elimina la sombra */
+    max-width: none;
+    border-radius: 0;
+    height: 100vh; /* Ocupa toda la altura en móvil */
+    box-shadow: none;
+    margin: 0;
   }
 
   .dashboard-header {
-    flex-direction: column; /* Apila el título y los botones */
-    align-items: flex-start;
+    flex-direction: row; /* Mantener en fila en móvil para que el icono se vea bien */
+    align-items: center;
     padding: 20px;
-    border-top-left-radius: 0; /* Quita bordes redondeados del header en móvil */
+    border-top-left-radius: 0;
     border-top-right-radius: 0;
   }
 
   .welcome-title {
-    font-size: 1.8em;
-    margin-bottom: 15px; /* Espacio entre título y botones */
+    font-size: 1.5em; /* Un poco más pequeño en móvil */
+    margin-bottom: 0; /* No hay margen inferior si están en fila */
+    flex-grow: 1;
   }
 
-  .header-buttons {
-    width: 100%; /* Los botones ocupan todo el ancho disponible */
-    justify-content: space-around; /* Distribuye los botones equitativamente */
-    gap: 10px; /* Ajusta el espacio entre los botones en móvil */
+  .header-actions {
+    /* En móvil, los botones de acción pueden estar a la derecha */
+    gap: 10px; /* Espacio entre los iconos */
   }
 
-  .logout-button, .add-button {
-    flex-grow: 1; /* Permite que ambos botones crezcan para llenar el espacio */
-    padding: 12px 15px; /* Ajusta el padding para que no sean demasiado grandes */
-    font-size: 1em;
-    height: auto; /* Permite que la altura se ajuste con el padding */
-    border-radius: 8px; /* Haz el botón de añadir cuadrado también en móvil */
+  .add-button {
+    width: 40px; /* Un poco más pequeño en móvil */
+    height: 40px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
 
   .add-button .plus-icon {
-      font-size: 24px; /* Ajusta el tamaño del icono más para móvil */
+    font-size: 26px; /* Ajusta el tamaño del icono más para móvil */
+  }
+
+  /* El icono de logout también se ajusta con .icon-button */
+  .icon-button {
+    font-size: 20px; /* Tamaño del icono en móvil */
+    padding: 6px;
   }
 
   .dashboard-content {
-    padding: 15px 20px; /* Ajusta el padding para móviles */
-    border-radius: 0; /* Sin bordes redondeados en móvil */
+    padding: 15px 20px;
+    border-radius: 0;
   }
 
   .day-navigation {
-    border-bottom-left-radius: 0; /* Quita los bordes redondeados del navegador de días */
+    border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
   }
 }

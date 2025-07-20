@@ -7,8 +7,8 @@
     </div>
     <div class="activity-info">
       <div class="activity-header">
-        <span class="client-name">{{ activity.Clientes?.nombre_cliente || 'Actividad Interna' }}</span>
-        <span class="category-name">{{ activity.CategoriasActividad.nombre_categoria }}</span>
+        <span class="client-name">{{ activity.clientes?.nombre_cliente || 'Sin cliente' }}</span>
+        <span class="category-name">{{ activity.categoriasactividad?.nombre_categoria || 'Sin categoría' }}</span>
       </div>
       <p class="activity-description">{{ activity.descripcion || 'Sin descripción.' }}</p>
       <span class="time-used">{{ formatDuration(activity.duracion_segundos) }}</span>
@@ -83,15 +83,15 @@ const formatDuration = (seconds) => {
 
 .client-name {
   font-weight: 600;
-  color: var(--text-color-dark);
+  color: var(--accent-darkblue);
   font-size: 1.1em;
   margin-right: 10px;
 }
 
 .category-name {
   font-size: 0.9em;
-  color: var(--text-color-medium);
-  background-color: #e6e6e6;
+  color: var(--secondary-color);
+  background-color:rgb(247, 201, 0);
   padding: 4px 8px;
   border-radius: 8px;
   white-space: nowrap;

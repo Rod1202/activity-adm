@@ -43,7 +43,7 @@ const goBack = () => {
 
 .admin-reports-header {
   background-color: var(--primary-color);
-  color: white;
+  color: #fff;
   padding: 25px 30px;
   display: flex;
   justify-content: space-between;
@@ -60,6 +60,10 @@ const goBack = () => {
   margin: 0;
   flex-grow: 1;
   text-align: center;
+}
+
+.report-title {
+  color: var(--accent-darkblue);
 }
 
 .back-button {

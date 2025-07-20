@@ -1,18 +1,25 @@
 /* src/style.css */
 @import url('https://cdn-uicons.flaticon.com/2.2.0/uicons-regular-straight/css/uicons-regular-straight.css');
 @import url('https://cdn-uicons.flaticon.com/2.2.0/uicons-solid-rounded/css/uicons-solid-rounded.css');
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap');
 
 /* Estilos globales para la aplicación */
 :root {
-    --primary-color: #4A55A2;
-    --secondary-color: #667EEA;
-    --background-color: #f0f2f5; /* Color de fondo para el escritorio (gris claro) */
-    --card-background: #ffffff; /* Color de fondo del card principal (blanco) */
-    --text-color-dark: #333;
-    --text-color-medium: #555;
-    --text-color-light: #777;
-    --error-color: #d32f2f;
-    --success-color: #4CAF50;
+    --primary-color: #0066f6; /* Azul principal */
+    --secondary-color: #f7f7f7; /* Gris claro como secundario */
+    --accent-purple: #5d20d1;
+    --accent-orange: #ff8721;
+    --accent-pink: #ea54d6;
+    --accent-darkblue: #14003b;
+    --accent-lime: #bfbf4b;
+    --background-color: #f7f7f7;
+    --card-background: #fff;
+    --text-color-dark: #14003b;
+    --text-color-medium: #222;
+    --text-color-light: #0066f6;
+    --error-color: #ff8721;
+    --success-color: #0066f6;
+    --main-font: 'Roboto', Arial, sans-serif;
 }
 
 /* Base para HTML, Body y el contenedor #app */
@@ -21,13 +28,14 @@ html, body, #app {
     margin: 0;
     padding: 0;
     width: 100%;
-    min-height: 100vh; /* Ocupa al menos el 100% del alto de la ventana */
+    height: 100vh; /* Altura fija para evitar scroll */
     box-sizing: border-box; /* Incluye padding y borde en el tamaño total */
+    overflow: hidden; /* Evita scroll en el contenedor principal */
 }
 
 /* Estilos del Body (por defecto: ESCRITORIO) */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--main-font);
     color: var(--text-color-dark);
     background-color: var(--background-color); /* Fondo gris claro para el escritorio */
     display: flex; /* Para permitir centrar el contenido principal */
@@ -44,11 +52,16 @@ body {
     align-items: center;
     width: 100%; /* Ocupará el 100% del espacio disponible que le deje el body */
     height: 100%; /* Ocupará el 100% del espacio disponible que le deje el body */
+    overflow: hidden; /* Evita scroll en el contenedor principal */
 }
 
 /* Media Query para MÓVILES */
 /* Cuando el ancho de la pantalla es menor o igual a 768px (típico para móviles y tablets pequeñas) */
 @media (max-width: 768px) {
+    html, body, #app {
+        overflow: auto; /* Permite scroll en móvil si es necesario */
+    }
+    
     body {
         background-color: var(--card-background); /* El body se vuelve blanco (color del card) */
         padding: 0; /* Elimina el padding para que el contenido llegue a los bordes */

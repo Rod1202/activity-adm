@@ -77,7 +77,8 @@ const selectDay = (date) => {
 
 .day-button {
   flex-shrink: 0;
-  background-color: #f0f0f0;
+  background-color: var(--secondary-color);
+  color: #fff;
   border: 1px solid #ddd;
   border-radius: 15px;
   padding: 10px 0;
@@ -93,13 +94,13 @@ const selectDay = (date) => {
 }
 
 .day-button:hover {
-  background-color: #e5e5e5;
+  background-color: var(--accent-purple);
   border-color: #ccc;
 }
 
 .day-button.active {
   background-color: var(--primary-color);
-  color: white;
+  color: #fff;
   border-color: var(--primary-color);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
