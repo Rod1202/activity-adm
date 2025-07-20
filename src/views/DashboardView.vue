@@ -249,7 +249,10 @@ onMounted(async () => {
 
 .activity-list {
   flex-grow: 1;
-  min-height: 0; /* Permite que la lista se encoja */
+  min-height: 0;
+  overflow-y: auto;
+  max-height: calc(100% - 80px);
+  padding-bottom: 0;
 }
 
 .no-activities-message, .loading-message {
