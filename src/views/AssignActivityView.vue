@@ -77,23 +77,10 @@
             <label for="start-time" class="form-label">Hora de Inicio</label>
             <div class="input-with-button">
               <input type="time" id="start-time" v-model="startTime" class="form-input" required>
-              <button type="button" class="btn-edit" @click="toggleEditEndTime">
-                <i class="fi fi-rs-clock-desk"></i> </button>
-            </div>
           </div>
         </div>
 
-        <div class="form-group" v-if="showEditEndTime">
-          <label for="end-time-manual" class="form-label">Hora de Fin (Manual)</label>
-          <input type="time" id="end-time-manual" v-model="manualEndTime" class="form-input" required>
-        </div>
 
-
-        <div class="two-columns-group">
-          <div class="form-group">
-            <label for="duration" class="form-label">Duración (HH:MM:SS)</label>
-            <input type="text" id="duration" :value="formatDuration(manualDurationSeconds)" class="form-input" readonly>
-          </div>
 
           <div class="form-group">
             <label for="priority" class="form-label">Prioridad</label>
@@ -105,15 +92,6 @@
           </div>
         </div>
 
-        <!-- Solo mostrar el cronómetro si no se está editando la hora de fin manual -->
-        <div class="chronometer-section" v-if="!showEditEndTime">
-          <p class="chronometer-display">{{ formatDuration(chronometerSeconds) }}</p>
-          <div class="chronometer-controls">
-            <button type="button" class="start-button" @click="startChronometer" :disabled="isChronometerRunning">Iniciar</button>
-            <button type="button" class="stop-button" @click="stopChronometer" :disabled="!isChronometerRunning">Detener</button>
-          </div>
-          <p class="chronometer-status">{{ isChronometerRunning ? 'Cronómetro en marcha' : 'Cronómetro detenido' }}</p>
-        </div>
 
         <div class="form-group">
           <label for="description" class="form-label">Descripción (opcional)</label>
@@ -137,6 +115,7 @@
         </div>
       </form>
     </main>
+    <BottomNavigation />
   </div>
 </template>
 
@@ -146,7 +125,7 @@ import { useRouter } from 'vue-router';
 import { supabase } from '@/services/supabaseClient';
 import { getCurrentUser } from '@/services/authService';
 import { isUserJefe, getAllUsers } from '@/services/userService'; // Importar getAllUsers
-
+import BottomNavigation from '@/components/BottomNavigation.vue';
 console.log('AssignActivityView: Script setup loaded.');
 
 const router = useRouter();
@@ -429,7 +408,7 @@ const saveActivity = async () => {
 
     successMessage.value = 'Actividad asignada exitosamente!';
     resetForm();
-    //router.push('/'); // Puedes redirigir a donde desees, por ejemplo, al dashboard
+    router.push('/'); 
   } catch (err) {
     console.error('Error al asignar actividad:', err.message);
     errorMessage.value = err.message || 'Error desconocido al asignar la actividad.';
@@ -607,123 +586,7 @@ select.form-input {
   flex-grow: 1;
 }
 
-.btn-edit {
-  background-color: #FFFFFF;
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
-  border-radius: 10px;
-  padding: 12px 15px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 48px;
-}
 
-.btn-edit i {
-    font-size: 1.2em;
-    color: inherit;
-}
-
-.btn-edit:hover {
-  background-color: var(--primary-color);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-}
-
-.btn-edit:hover i {
-    color: white;
-}
-
-.btn-edit:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-.chronometer-section {
-  text-align: center;
-  margin-bottom: 10px;
-  background-color: var(--secondary-color);
-  color: #fff;
-  border-radius: 12px;
-  padding: 8px 6px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
-  flex-shrink: 0;
-}
-
-.chronometer-display {
-  font-size: 1.4em;
-  font-weight: 700;
-  color: #7a7a7a;
-  margin-bottom: 6px;
-  font-family: 'Roboto Mono', monospace;
-}
-
-.chronometer-controls {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin-bottom: 4px;
-}
-
-.chronometer-controls button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.95em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-}
-
-.start-button {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.start-button:hover:not(:disabled) {
-  background-color: #45a049;
-  transform: translateY(-2px);
-}
-
-.start-button:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.stop-button {
-  background-color: #F44336;
-  color: white;
-}
-
-.stop-button:hover:not(:disabled) {
-  background-color: #da3e32;
-  transform: translateY(-2px);
-}
-
-.stop-button:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.chronometer-controls button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.chronometer-status {
-  font-size: 0.75em;
-  color: var(--text-color-medium);
-  margin-bottom: 0;
-}
 
 .action-buttons {
   display: flex;
@@ -822,23 +685,13 @@ select.form-input {
     flex-direction: column;
     gap: 15px;
   }
-  .chronometer-display {
-    font-size: 3em;
-  }
-  .chronometer-controls button {
-    padding: 12px 20px;
-    font-size: 1em;
-  }
+
   .action-buttons button {
     padding: 14px;
     font-size: 16px;
     max-width: 100%;
   }
-  .btn-edit {
-    width: 45px;
-    height: 45px;
-    padding: 0;
-  }
+
 }
 
 .floating-error-icon {

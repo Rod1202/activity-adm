@@ -126,6 +126,7 @@
         </div>
       </form>
     </main>
+    <BottomNavigation />
   </div>
 </template>
 
@@ -135,7 +136,7 @@ import { useRouter } from 'vue-router';
 import { supabase } from '@/services/supabaseClient';
 import { getCurrentUser, getCurrentUserData } from '@/services/authService';
 import { isUserJefe } from '@/services/userService';
-
+import BottomNavigation from '@/components/BottomNavigation.vue';
 const router = useRouter();
 
 const allClients = ref([]);
@@ -546,10 +547,6 @@ select.form-input {
   padding-right: 30px;
 }
 
-/* Eliminar el estilo específico de textarea.form-input si existe */
-textarea.form-input {
-  /* eliminado para que no afecte al nuevo input */
-}
 
 /* Diseño de dos columnas para algunos grupos */
 .two-columns-group {
@@ -776,13 +773,16 @@ textarea.form-input {
     box-shadow: none; /* Quita la sombra para una apariencia de "app" nativa */
   }
 
+  
+
   .register-activity-header {
     border-top-left-radius: 0; /* Quita los bordes redondeados del header */
     border-top-right-radius: 0;
   }
 
   .register-activity-content {
-    padding: 15px 20px; /* Ajusta el padding para móviles */
+    padding: 15px 20px;
+    padding-bottom: 90px; /* Ajusta el padding para móviles */
   }
 
   .form-input, select.form-input {

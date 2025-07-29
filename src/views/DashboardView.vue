@@ -242,6 +242,7 @@ onMounted(async () => {
   padding: 20px 30px 0; /* padding-bottom se manejará con el espacio para el bottom nav */
   overflow-y: auto;
   min-height: 0;
+  padding-bottom: 90px;
 }
 
 /* --- Sección de Resumen (Total Horas) --- */
@@ -359,6 +360,7 @@ onMounted(async () => {
   .dashboard-content {
     padding: 15px 20px;
     border-radius: 0;
+    
   }
 
   .day-navigation {
