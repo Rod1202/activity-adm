@@ -523,6 +523,7 @@ onUnmounted(() => {
   overflow-y: auto;
   min-height: 0;
   position: relative;
+  padding-bottom: 100px;
 }
 
 .form-group {
@@ -674,6 +675,7 @@ select.form-input {
 
   .register-activity-content {
     padding: 15px 20px;
+    padding-bottom: 90px;
   }
 
   .form-input, select.form-input {

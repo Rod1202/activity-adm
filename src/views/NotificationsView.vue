@@ -41,14 +41,7 @@ import BottomNavigation from '@/components/BottomNavigation.vue';
 
 // Datos de ejemplo para las notificaciones
 const notifications = ref([
-  {
-    id: 1,
-    type: 'activity',
-    title: 'Nueva actividad registrada',
-    message: 'Se ha registrado una nueva actividad para hoy',
-    createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutos atrás
-    read: false
-  },
+  
   {
     id: 2,
     type: 'reminder',
