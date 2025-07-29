@@ -1,0 +1,17 @@
+@import './base.css';
+
+#app {
+  max-width: none; /* Eliminamos el max-width para permitir que las vistas controlen su tamaño */
+  margin: 0; /* Eliminamos el margin para que las vistas controlen su posicionamiento */
+  padding: 0; /* Eliminamos el padding para que las vistas controlen su espaciado */
+  font-weight: normal;
+  width: 100%;
+  height: 100%;
+}
+
+a {
+  color: var(--primary-color);
+}
+a:hover {
+  color: var(--secondary-color);
+}
