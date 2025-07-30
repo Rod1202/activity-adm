@@ -4,7 +4,7 @@
       <h1 class="header-title">Seleccionar Fecha</h1>
     </header>
     <main class="calendar-content">
-      <DayNavigation :selected-date="selectedDate" @update:selectedDate="handleDateChange" />
+      <FullCalendarPicker :initial-date="selectedDate" @update:selectedDate="handleDateChange" />
     </main>
     <BottomNavigation />
   </div>
@@ -13,23 +13,32 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import DayNavigation from '@/components/DayNavigation.vue';
+// Importa tu nuevo componente de calendario
+import FullCalendarPicker from '@/components/FullCalendarPicker.vue'; // Asegúrate de que la ruta sea correcta
 import BottomNavigation from '@/components/BottomNavigation.vue';
 
 const router = useRouter();
-const selectedDate = ref(new Date());
+const selectedDate = ref(new Date()); // Inicializa con la fecha actual
 
 const handleDateChange = (date) => {
   selectedDate.value = date;
+
+  // Formatea la fecha usando los métodos locales del objeto Date
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses son 0-indexados
+  const day = String(date.getDate()).padStart(2, '0');
+  const localDateString = `${year}-${month}-${day}`;
+
   // Redirige a DashboardView con la fecha seleccionada como query parameter
   router.push({
     name: 'dashboard',
-    query: { date: date.toISOString().split('T')[0] }
+    query: { date: localDateString } // Usa la fecha formateada localmente
   });
 };
 </script>
 
 <style scoped>
+/* Tu estilo para CalendarPickerView.vue permanece sin cambios */
 .phone-mockup {
   width: 100%;
   max-width: 1000px;
@@ -69,68 +78,7 @@ const handleDateChange = (date) => {
   justify-content: center;
   align-items: center;
   padding: 20px;
-}
-
-/* Estilos para el DayNavigation dentro de esta vista */
-.calendar-content :deep(.day-navigation-container) {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  max-width: 700px;
-}
-
-.calendar-content :deep(.day-button) {
-  flex: 1;
-  min-width: 80px;
-  max-width: 120px;
-  height: 90px;
-  background-color: #fff;
-  border: 2px solid #e0e0e0;
-  border-radius: 15px;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.calendar-content :deep(.day-button:hover) {
-  border-color: var(--primary-color);
-  transform: translateY(-3px);
-}
-
-.calendar-content :deep(.day-button.active) {
-  background-color: var(--primary-color);
-  color: #fff;
-  border-color: var(--primary-color);
-  transform: translateY(-5px);
-  box-shadow: 0 6px 16px rgba(74, 85, 162, 0.3);
-}
-
-.calendar-content :deep(.day-button.active .day-name),
-.calendar-content :deep(.day-button.active .day-month),
-.calendar-content :deep(.day-button.active .day-number) {
-  color: white;
-}
-
-.calendar-content :deep(.day-name) {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.calendar-content :deep(.day-month) {
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.calendar-content :deep(.day-number) {
-  font-size: 22px;
-  font-weight: 700;
+  /* Los estilos :deep() de DayNavigation ya no son necesarios aquí */
 }
 
 @media (max-width: 768px) {
@@ -141,10 +89,14 @@ const handleDateChange = (date) => {
     box-shadow: none;
     margin: 0;
   }
-    .calendar-header { /* Usamos tu clase `new-dashboard-header` */
-    padding: 20px 15px 10px; /* Ajustar padding en móvil */
-    border-top-left-radius: 0; /* Eliminar bordes redondeados en móvil */
-    border-top-right-radius: 0; /* Eliminar bordes redondeados en móvil */
+  .calendar-header {
+    padding: 20px 15px 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
   }
+  .calendar-content {
+  padding-bottom: 100px;
+  
+}
 }
 </style>

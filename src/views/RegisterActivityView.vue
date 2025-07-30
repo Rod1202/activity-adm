@@ -155,6 +155,36 @@ const categorySearch = ref('');
 const showClientOptions = ref(false);
 const showCategoryOptions = ref(false);
 
+// --- INICIO DE LAS MODIFICACIONES ---
+
+// Nueva función auxiliar para obtener la fecha actual en formato 'YYYY-MM-DD' local
+const getLocalTodayString = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses son 0-indexados
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// Inicializa activityDate usando la nueva función para obtener la fecha local
+const activityDate = ref(getLocalTodayString());
+
+// --- FIN DE LAS MODIFICACIONES ---
+
+const startTime = ref('');
+const manualEndTime = ref('');
+const showEditEndTime = ref(false);
+const priority = ref('Media');
+
+const manualDurationSeconds = ref(0);
+const chronometerSeconds = ref(0);
+const isChronometerRunning = ref(false);
+let chronometerInterval = null;
+
+const isLoading = ref(false);
+const successMessage = ref('');
+const errorMessage = ref('');
+
 const filteredClients = computed(() => {
   if (!clientSearch.value) {
     return allClients.value;
@@ -164,7 +194,6 @@ const filteredClients = computed(() => {
   );
 });
 
-// --- MODIFICACIÓN AQUÍ: filteredCategories para la validación interna ---
 const filteredCategories = computed(() => {
   let categoriesToFilter = allCategories.value;
 
@@ -174,8 +203,8 @@ const filteredCategories = computed(() => {
 
   // Validación: Si el cliente seleccionado es "MISION TECNOLOGICA" (por nombre o ID)
   if (selectedClient.value && 
-     (selectedClient.value.nombre_cliente === 'MISION TECNOLOGICA' || 
-      selectedClient.value.cliente_id === MISION_TECNOLOGICA_CLIENT_ID)) {
+      (selectedClient.value.nombre_cliente === 'MISION TECNOLOGICA' || 
+       selectedClient.value.cliente_id === MISION_TECNOLOGICA_CLIENT_ID)) {
     
     // Filtra las categorías para que solo incluyan las permitidas para MISION TECNOLOGICA
     categoriesToFilter = categoriesToFilter.filter(category =>
@@ -199,25 +228,8 @@ const filteredCategories = computed(() => {
 
   return categoriesToFilter;
 });
-// --- FIN DE LA MODIFICACIÓN ---
 
-const description = ref('');
-const activityDate = ref(new Date().toISOString().split('T')[0]);
-const startTime = ref('');
-const manualEndTime = ref('');
-const showEditEndTime = ref(false);
-const priority = ref('Media');
-
-const manualDurationSeconds = ref(0);
-const chronometerSeconds = ref(0);
-const isChronometerRunning = ref(false);
-let chronometerInterval = null;
-
-const isLoading = ref(false);
-const successMessage = ref('');
-const errorMessage = ref('');
-
-// --- Funciones para el cronómetro (sin cambios) ---
+// --- Funciones para el cronómetro ---
 const startChronometer = () => {
   if (!isChronometerRunning.value) {
     isChronometerRunning.value = true;
@@ -250,7 +262,7 @@ const formatDuration = (totalSeconds) => {
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 
-// --- Watchers para calcular la duración manual (sin cambios) ---
+// --- Watchers para calcular la duración manual ---
 watch([startTime, manualEndTime, showEditEndTime], ([newStartTime, newManualEndTime, newShowEditEndTime]) => {
   if (newShowEditEndTime && newStartTime && newManualEndTime) {
     const startDateTime = new Date(`${activityDate.value}T${newStartTime}`);
@@ -273,7 +285,7 @@ watch([startTime, manualEndTime, showEditEndTime], ([newStartTime, newManualEndT
   }
 }, { immediate: true });
 
-// --- Funciones de formulario y Supabase (sin cambios significativos, solo un pequeño ajuste en selectClient) ---
+// --- Funciones de formulario y Supabase ---
 const fetchClientsAndCategories = async () => {
   try {
     const user = await getCurrentUser();
@@ -304,10 +316,6 @@ const selectClient = (client) => {
   selectedClient.value = client;
   clientSearch.value = client.nombre_cliente;
   showClientOptions.value = false;
-  // Al seleccionar un cliente, forzamos la re-evaluación de filteredCategories
-  // y limpiamos la categoría seleccionada si ya no es válida para el nuevo cliente.
-  // Esto ya se maneja dentro de filteredCategories, pero este es un buen punto para re-evaluar.
-  // No necesitamos llamar a una función aquí, el `computed` se encargará.
 };
 
 const selectCategory = (category) => {
@@ -371,7 +379,6 @@ const saveActivity = async () => {
         }
     }
 
-
     let finalDurationSeconds = 0;
     let finalEndTime = null;
     let isActivityPending = false;
@@ -431,7 +438,7 @@ const saveActivity = async () => {
             cliente_id: selectedClient.value.cliente_id,
             categoria_id: selectedCategory.value.categoria_id,
             descripcion: description.value || null,
-            fecha_actividad: activityDate.value,
+            fecha_actividad: activityDate.value, // Esto ya es 'YYYY-MM-DD'
             hora_inicio: startTime.value,
             hora_fin: finalEndTime,
             duracion_segundos: finalDurationSeconds,
@@ -461,19 +468,23 @@ const saveActivity = async () => {
   }
 };
 
+// --- INICIO DE LAS MODIFICACIONES (parte 2) ---
+
 const resetForm = () => {
     selectedClient.value = null;
     selectedCategory.value = null;
     clientSearch.value = '';
     categorySearch.value = '';
     description.value = '';
-    activityDate.value = new Date().toISOString().split('T')[0];
+    activityDate.value = getLocalTodayString(); // Usa la función para la fecha local
     startTime.value = new Date().toTimeString().split(' ')[0].substring(0, 5);
     manualEndTime.value = '';
     showEditEndTime.value = false;
     priority.value = 'Media';
     resetChronometer();
 };
+
+// --- FIN DE LAS MODIFICACIONES (parte 2) ---
 
 const goBack = () => {
     router.push('/');
