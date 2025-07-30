@@ -51,6 +51,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { getCurrentUser } from '@/services/authService';
 import { supabase } from '@/services/supabaseClient';
 import { getUserActivities } from '@/services/userService';
+import { getPeruTimezoneDate, formatDateToYYYYMMDD, parseYYYYMMDD } from '@/utils/dateUtils';
 
 import ActivityCard from '@/components/ActivityCard.vue';
 import BottomNavigation from '@/components/BottomNavigation.vue'; 
@@ -58,7 +59,7 @@ import BottomNavigation from '@/components/BottomNavigation.vue';
 const router = useRouter();
 const route = useRoute();
 const userName = ref('...');
-const selectedDate = ref(new Date());
+const selectedDate = ref(getPeruTimezoneDate()); // Use utility function
 const activities = ref([]);
 const isLoadingActivities = ref(false);
 const currentTab = ref('inProgress');
@@ -108,19 +109,20 @@ const formattedCurrentDate = computed(() => {
 
 // Filtrar actividades basadas en la pestaña seleccionada y la fecha
 const filteredActivities = computed(() => {
-  const today = selectedDate.value.toISOString().split('T')[0]; // Fecha para filtrar
+  const todayString = formatDateToYYYYMMDD(selectedDate.value); // Use utility function
 
   return activities.value.filter(activity => {
-    // Asegurarse de que la actividad es para el día seleccionado
-    const activityDate = new Date(activity.fecha_actividad + 'T00:00:00'); 
-    const isToday = activityDate.toISOString().split('T')[0] === today;
+    const activityDate = parseYYYYMMDD(activity.fecha_actividad); // Use utility function
+    const activityDateString = formatDateToYYYYMMDD(activityDate); // Use utility function
 
-    if (!isToday) return false;
+    const isSelectedDay = activityDateString === todayString;
+
+    if (!isSelectedDay) return false;
 
     // Verificar el estado de la actividad según la nueva estructura
-    const isPendiente = activity.estado_actividad_id === 1 || 
+    const isPendiente = activity.estado_actividad_id === 1 ||
                        (activity.estados_actividad_nombre_estado === 'Pendiente');
-    const isCompletado = activity.estado_actividad_id === 3 || 
+    const isCompletado = activity.estado_actividad_id === 3 ||
                          (activity.estados_actividad_nombre_estado === 'Completado');
     const isCancelado = activity.estado_actividad_id === 4 ||
                         (activity.estados_actividad_nombre_estado === 'Cancelado');
@@ -146,7 +148,7 @@ const fetchActivities = async () => {
       return;
     }
 
-    const formattedDate = selectedDate.value.toISOString().split('T')[0];
+    const formattedDate = formatDateToYYYYMMDD(selectedDate.value); // Use utility function
 
     // Usar el nuevo servicio para obtener actividades
     const activitiesData = await getUserActivities(user.id, {
@@ -166,9 +168,9 @@ const fetchActivities = async () => {
 
 watch(() => route.query.date, (newDate) => {
   if (newDate) {
-    selectedDate.value = new Date(newDate + 'T00:00:00');
+    selectedDate.value = parseYYYYMMDD(newDate); // Use utility function
   } else {
-    selectedDate.value = new Date();
+    selectedDate.value = getPeruTimezoneDate(); // Use utility function
   }
   fetchActivities();
 });
@@ -176,7 +178,9 @@ watch(() => route.query.date, (newDate) => {
 onMounted(async () => {
   try {
     if (route.query.date) {
-      selectedDate.value = new Date(route.query.date + 'T00:00:00');
+      selectedDate.value = parseYYYYMMDD(route.query.date); // Use utility function
+    } else {
+      selectedDate.value = getPeruTimezoneDate(); // Use utility function
     }
 
     const user = await getCurrentUser();

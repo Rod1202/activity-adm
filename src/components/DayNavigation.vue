@@ -15,6 +15,7 @@
 
 <script setup>
 import { ref, watch, computed, defineProps, defineEmits } from 'vue';
+import { formatDateToYYYYMMDD } from '@/utils/dateUtils';
 
 const props = defineProps({
   selectedDate: {
@@ -39,7 +40,7 @@ const fiveDays = computed(() => {
 
     dates.push({
       date: date,
-      fullDate: date.toISOString().split('T')[0], // Para key único
+      fullDate: formatDateToYYYYMMDD(date), // Use utility function
       dayName: dayName,
       monthName: monthName,
       dayNumber: dayNumber,
