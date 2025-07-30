@@ -23,14 +23,13 @@
 }
 
 /* Base para HTML, Body y el contenedor #app */
-/* Aseguramos que ocupen el 100% del espacio y no tengan márgenes/rellenos por defecto */
 html, body, #app {
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100vh; /* Altura fija para evitar scroll */
-    box-sizing: border-box; /* Incluye padding y borde en el tamaño total */
-    overflow: hidden; /* Evita scroll en el contenedor principal */
+    height: 100vh; /* Ocupa el 100% del viewport height */
+    box-sizing: border-box;
+    overflow: hidden; /* Evita scrollbars en el nivel más alto */
 }
 
 /* Estilos del Body (por defecto: ESCRITORIO) */
@@ -38,46 +37,121 @@ body {
     font-family: var(--main-font);
     color: var(--text-color-dark);
     background-color: var(--background-color); /* Fondo gris claro para el escritorio */
-    display: flex; /* Para permitir centrar el contenido principal */
-    justify-content: center; /* Centra horizontalmente el #app en el escritorio */
-    align-items: center; /* Centra verticalmente el #app en el escritorio */
-    padding: 20px; /* Un poco de padding alrededor del card en escritorio */
+    display: flex; /* Usamos flexbox para centrar el #app */
+    justify-content: center; /* Centra horizontalmente el #app */
+    align-items: center; /* Centra verticalmente el #app */
+    padding: 0; /* Sin padding en el body para que #app ocupe el espacio disponible */
 }
 
 /* Estilos del contenedor #app (por defecto: ESCRITORIO) */
 #app {
-    /* En escritorio, #app contendrá el phone-mockup y se alineará al centro */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%; /* Ocupará el 100% del espacio disponible que le deje el body */
-    height: 100%; /* Ocupará el 100% del espacio disponible que le deje el body */
-    overflow: hidden; /* Evita scroll en el contenedor principal */
+    display: flex; /* También usamos flexbox dentro de #app */
+    justify-content: center; /* Centra el phone-mockup dentro de #app */
+    align-items: center; /* Centra el phone-mockup verticalmente dentro de #app */
+    width: 100%;
+    height: 100%; /* Ocupa el 100% de la altura de su padre (body) */
+    max-width: 1920px; /* Opcional: Si quieres un max-width para todo el contenido en pantallas muy anchas */
+    overflow: hidden; /* Evita scroll en #app, el scroll estará en el phone-mockup si es necesario */
 }
 
-/* Media Query para MÓVILES */
-/* Cuando el ancho de la pantalla es menor o igual a 768px (típico para móviles y tablets pequeñas) */
+/* Estilos para el contenedor phone-mockup (simulador de teléfono) */
+.phone-mockup {
+    width: 100%; /* Ocupa el 100% del ancho de su contenedor (#app) */
+    max-width: 420px; /* Mantiene el ancho del "teléfono" en escritorio */
+    
+    /* ALTURA ADAPTABLE PARA ESCRITORIO */
+    height: 95vh; /* Ocupa el 95% de la altura del viewport */
+    min-height: 500px; /* Altura mínima para que no sea demasiado pequeño */
+    max-height: 800px; /* Altura máxima para evitar que sea exageradamente alto en monitores 4K */
+    
+    border-radius: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    background: var(--card-background); /* Fondo blanco para el "teléfono" */
+    
+    display: flex;
+    flex-direction: column; /* Apila el header, content y navigation */
+    position: relative;
+    /* QUITAMOS OVERFLOW: HIDDEN DE AQUÍ para que el scroll se gestione en el main content */
+    /* overflow: hidden; */ 
+}
+
+/* ESTILOS PARA EL HEADER DENTRO DEL PHONE-MOCKUP */
+.dashboard-header {
+    flex-shrink: 0; /* Evita que el header se encoja */
+    /* Asegúrate de que tu header tenga una altura definida o que su contenido la determine */
+    /* Por ejemplo: height: 60px; */ 
+    /* padding, background, etc. */
+}
+
+/* ESTILOS PARA EL CONTENIDO PRINCIPAL QUE CONTIENE EL SCROLL */
+/* Asegúrate de que esta clase se aplique a tu <main> elemento */
+.dashboard-content-new {
+    flex-grow: 1; /* Permite que el contenido crezca y ocupe todo el espacio disponible */
+    overflow-y: auto; /* <--- ESTO ES LO MÁS IMPORTANTE: Habilita el scroll vertical aquí */
+    -webkit-overflow-scrolling: touch; /* Mejora el scroll en iOS */
+    padding: 20px; /* O el padding que necesites para el contenido */
+    box-sizing: border-box; /* Incluye padding en el tamaño total */
+    /* Asegúrate de que el padding-bottom sea suficiente para el bottom-navigation */
+    padding-bottom: calc(var(--bottom-nav-height, 60px) + 20px); /* Ajusta si tu nav tiene más altura */
+    /* Opcional: Un fondo si necesitas que sea diferente al card-background */
+    /* background-color: var(--card-background); */ 
+}
+
+/* ESTILOS PARA LA NAVEGACIÓN INFERIOR */
+.bottom-navigation {
+    flex-shrink: 0; /* Evita que la navegación se encoja */
+    height: var(--bottom-nav-height, 60px); /* <--- Define la altura de tu barra de navegación */
+    width: 100%;
+    /* Otros estilos como background-color, box-shadow, posición, etc. */
+    background-color: white; /* Ejemplo, usa tu variable de color */
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Sombra para que se vea elevada */
+    position: sticky; /* O fixed si quieres que flote sobre todo */
+    bottom: 0; /* Si usas position fixed/sticky */
+    z-index: 100; /* Asegura que esté por encima del contenido */
+}
+/* Define una variable para la altura del bottom nav si no la tienes ya */
+:root {
+    --bottom-nav-height: 60px; /* Altura de tu barra de navegación */
+}
+
+
+/* Media Query para MÓVILES (cuando el ancho es menor o igual a 768px) */
 @media (max-width: 768px) {
     html, body, #app {
-        overflow: auto; /* Permite scroll en móvil si es necesario */
+        overflow: auto; /* Permite scroll general en móvil si el contenido es muy largo */
     }
     
     body {
-        background-color: var(--card-background); /* El body se vuelve blanco (color del card) */
-        padding: 0; /* Elimina el padding para que el contenido llegue a los bordes */
-        /* En móvil, queremos que el contenido (el #app) se alinee al inicio y no haya centrado del body */
-        justify-content: flex-start; /* Alinea el contenido al inicio (arriba) */
-        align-items: flex-start; /* Alinea el contenido al inicio (izquierda) */
+        background-color: var(--card-background); /* El body se vuelve blanco en móvil */
+        padding: 0;
+        justify-content: flex-start; /* Alinea el contenido al inicio */
+        align-items: flex-start;
     }
 
     #app {
-        /* En móvil, #app también ocupa todo el espacio y no necesita centrar */
-        display: flex;
-        flex-direction: column; /* Asegura que los hijos se apilen */
-        width: 100%; /* Ocupa todo el ancho */
-        min-height: 100vh; /* Ocupa toda la altura disponible */
-        justify-content: flex-start; /* Alinea el contenido al inicio (arriba) */
-        align-items: flex-start; /* Alinea el contenido al inicio (izquierda) */
+        width: 100%;
+        min-height: 100vh; /* Asegura que #app ocupe al menos toda la altura en móvil */
+        max-width: none; /* Elimina el límite de ancho para móviles */
+        height: auto; /* Permite que la altura de #app se ajuste al contenido */
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+    /* En móvil, el phone-mockup ocupa toda la pantalla */
+    .phone-mockup {
+        width: 100%;
+        max-width: none; /* Elimina el límite de ancho en móvil */
+        height: 100vh; /* Ocupa toda la altura de la vista en móvil */
+        min-height: 100vh; /* Asegura que siempre ocupe 100vh */
+        border-radius: 0; /* Sin bordes redondeados */
+        box-shadow: none; /* Sin sombra */
+        margin: 0; /* Sin márgenes */
+        /* overflow: auto;  <--- EL SCROLL SE GESTIONA EN .dashboard-content-new AHORA */
+    }
+
+    /* En móvil, el contenido principal también mantiene su scroll */
+    .dashboard-content-new {
+        padding-bottom: calc(var(--bottom-nav-height, 60px) + 20px); /* Mismo padding para móvil */
     }
 }
 

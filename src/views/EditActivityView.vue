@@ -45,7 +45,7 @@
           <button type="submit" class="styled-button primary-button" :disabled="isSaving">
             {{ isSaving ? 'Guardando...' : 'Completar Actividad' }}
           </button>
-          <button type="button" @click="cancelActivity" class="styled-button warning-button" :disabled="isSaving">
+          <button type="button" @click="cancelActivity" class="styled-button danger-button" :disabled="isSaving">
             Cancelar Actividad
           </button>
           
@@ -488,25 +488,25 @@ onMounted(() => {
 }
 
 .primary-button:hover {
-  background-color: var(--primary-dark); /* Un azul más oscuro */
+  background-color: #004cb3; /* Un azul más oscuro que el primary-color */
 }
 
 .warning-button {
-  background-color: var(--warning-color); /* Color naranja */
-  color: #333; /* Texto oscuro para contraste */
+  background-color: var(--accent-orange); /* Tu naranja actual */
+  color: white; /* Texto blanco para el naranja */
 }
 
 .warning-button:hover {
-  background-color: var(--warning-dark); /* Un naranja más oscuro */
+  background-color: #cc6d00; /* Un naranja más oscuro */
 }
 
 .danger-button {
-  background-color: var(--danger-color); /* Color rojo */
+  background-color: #dc3545; /* Rojo fuerte para peligro/cancelar */
   color: white;
 }
 
 .danger-button:hover {
-  background-color: var(--danger-dark); /* Un rojo más oscuro */
+  background-color: #c82333; /* Un rojo más oscuro */
 }
 
 /* Mensajes de estado */

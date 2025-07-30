@@ -54,7 +54,7 @@ const notifications = ref([
     id: 3,
     type: 'system',
     title: 'Actualización del sistema',
-    message: 'El sistema se actualizará esta noche a las 2:00 AM',
+    message: 'El sistema se actualizará esta noche a las 1:00 AM',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 día atrás
     read: true
   }

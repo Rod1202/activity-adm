@@ -12,7 +12,7 @@
             <label for="password" class="form-label">Contraseña</label>
             <input type="password" id="password" v-model="password" class="form-input" placeholder="Contraseña" required>
             <div class="forgot-link-row left-align">
-              <a class="forgot-link" href="#" target="_blank">¿Olvidaste la contraseña?</a>
+              <a class="forgot-link" href="https://wa.me/+51908809073" target="_blank">¿Olvidaste la contraseña?</a>
             </div>
           </div>
           <button type="submit" class="login-button" :disabled="isLoading">
