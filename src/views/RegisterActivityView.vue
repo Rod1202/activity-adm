@@ -112,7 +112,7 @@
         </div>
 
         <div class="form-group">
-          <label for="description" class="form-label">Descripción (opcional)</label>
+          <label for="description" class="form-label">Descripción </label>
           <input id="description" v-model="description" class="form-input" type="text" placeholder="Describe los detalles de la actividad..." maxlength="255" />
         </div>
 

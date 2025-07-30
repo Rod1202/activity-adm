@@ -26,7 +26,7 @@
         </div>
 
         <div class="form-group">
-          <label for="description">Descripción (opcional):</label>
+          <label for="description">Descripción :</label>
           <textarea id="description" v-model="activity.descripcion" class="styled-input"></textarea>
         </div>
 
