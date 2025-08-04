@@ -102,7 +102,7 @@
           </div>
         </div>
 
-        <div class="chronometer-section" v-if="!showEditEndTime" display="none">
+        <div class="chronometer-section" v-if="!showEditEndTime" style="display: none">
           <p class="chronometer-display">{{ formatDuration(chronometerSeconds) }}</p>
           <div class="chronometer-controls">
             <button type="button" class="start-button" @click="startChronometer" :disabled="isChronometerRunning">Iniciar</button>
