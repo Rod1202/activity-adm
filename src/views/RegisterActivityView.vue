@@ -198,7 +198,7 @@ const filteredCategories = computed(() => {
   let categoriesToFilter = allCategories.value;
 
   // Define las categorías permitidas para "MISION TECNOLOGICA" por sus IDs
-  const MISION_TECNOLOGICA_CATEGORY_IDS = [1, 2, 3, 4, 5, 6, 7, 25];
+  const MISION_TECNOLOGICA_CATEGORY_IDS = [1, 2, 3, 4, 5, 6, 7, 23, 31, 11, 27];
   const MISION_TECNOLOGICA_CLIENT_ID = 94; // El ID que mencionaste
 
   // Validación: Si el cliente seleccionado es "MISION TECNOLOGICA" (por nombre o ID)
