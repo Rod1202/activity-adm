@@ -368,7 +368,7 @@ const saveActivity = async () => {
     }
 
     // Asegurarse de que la categoría seleccionada es una de las permitidas si el cliente es MISION TECNOLOGICA
-    const MISION_TECNOLOGICA_CATEGORY_IDS = [1, 2, 3, 4, 5, 6, 7, 25];
+    const MISION_TECNOLOGICA_CATEGORY_IDS = [1, 2, 3, 4, 5, 6, 9, 7, 23, 31, 11, ,26, ,28, 27, 19, 18, 20, 32];
     const MISION_TECNOLOGICA_CLIENT_ID = 94;
     if (selectedClient.value && 
         (selectedClient.value.nombre_cliente === 'MISION TECNOLOGICA' || 
