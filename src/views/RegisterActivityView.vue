@@ -8,7 +8,8 @@
     </header>
 
     <main class="register-activity-content">
-      <form @submit.prevent="saveActivity">
+      <form @submit.prevent="saveActivity" autocomplete="off">
+        <!-- Campo para Cliente -->
         <div class="form-group">
           <label for="client-search" class="form-label">Cliente</label>
           <div class="search-select-container">
@@ -19,7 +20,8 @@
               class="form-input"
               placeholder="Buscar cliente..."
               @focus="showClientOptions = true"
-              @blur="hideClientOptions"
+              @blur="hideOptions(showClientOptions)"
+              autocomplete="off"
             />
             <ul v-if="showClientOptions && filteredClients.length" class="options-list">
               <li
@@ -33,25 +35,53 @@
           </div>
         </div>
 
+        <!-- Campo para Medio -->
         <div class="form-group">
-          <label for="category-search" class="form-label">Categoría</label>
+          <label for="medio-search" class="form-label">Medio</label>
           <div class="search-select-container">
             <input
               type="text"
-              id="category-search"
-              v-model="categorySearch"
+              id="medio-search"
+              v-model="medioSearch"
               class="form-input"
-              placeholder="Buscar categoría..."
-              @focus="showCategoryOptions = true"
-              @blur="hideCategoryOptions"
+              placeholder="Buscar medio..."
+              @focus="showMedioOptions = true"
+              @blur="hideOptions(showMedioOptions)"
+              autocomplete="off"
             />
-            <ul v-if="showCategoryOptions && filteredCategories.length" class="options-list">
+            <ul v-if="showMedioOptions && filteredMedios.length" class="options-list">
               <li
-                v-for="category in filteredCategories"
-                :key="category.categoria_id"
-                @mousedown="selectCategory(category)"
+                v-for="medio in filteredMedios"
+                :key="medio.id_medio"
+                @mousedown="selectMedio(medio)"
               >
-                {{ category.nombre_categoria }}
+                {{ medio.descripcion }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Campo para Destino -->
+        <div class="form-group">
+          <label for="destino-search" class="form-label">Destino</label>
+          <div class="search-select-container">
+            <input
+              type="text"
+              id="destino-search"
+              v-model="destinoSearch"
+              class="form-input"
+              placeholder="Buscar destino..."
+              @focus="showDestinoOptions = true"
+              @blur="hideOptions(showDestinoOptions)"
+              autocomplete="off"
+            />
+            <ul v-if="showDestinoOptions && filteredDestinos.length" class="options-list">
+              <li
+                v-for="destino in filteredDestinos"
+                :key="destino.id_destino"
+                @mousedown="selectDestino(destino)"
+              >
+                {{ destino.descripcion }}
               </li>
             </ul>
           </div>
@@ -60,60 +90,52 @@
         <div class="two-columns-group">
           <div class="form-group">
             <label for="date" class="form-label">Fecha</label>
-            <input type="date" id="date" v-model="activityDate" class="form-input" required>
+            <input type="date" id="date" v-model="activityDate" class="form-input" required autocomplete="off">
           </div>
-
           <div class="form-group">
             <label for="start-time" class="form-label">Hora de Inicio</label>
-            <div class="input-with-button">
-              <input type="time" id="start-time" v-model="startTime" class="form-input" required>
-              <button type="button" class="btn-edit" @click="toggleEditEndTime">
-                <i class="fi fi-rs-clock-desk"></i>
-              </button>
-            </div>
+            <input type="time" id="start-time" v-model="startTime" class="form-input" required autocomplete="off">
           </div>
         </div>
 
-        <div class="form-group" v-if="showEditEndTime">
-          <label for="end-time-manual" class="form-label">Hora de Fin (Manual)</label>
-          <input type="time" id="end-time-manual" v-model="manualEndTime" class="form-input" required>
-        </div>
-
-
         <div class="two-columns-group">
+          <div class="form-group">
+            <label for="end-time-manual" class="form-label">Hora de Fin (Manual)</label>
+            <input type="time" id="end-time-manual" v-model="endTime" class="form-input" autocomplete="off">
+          </div>
           <div class="form-group">
             <label for="duration" class="form-label">Duración (HH:MM:SS)</label>
             <input 
               type="text" 
               id="duration" 
-              :value="formatDuration(manualDurationSeconds)" 
+              :value="formattedDuration" 
               class="form-input" 
               readonly
+              autocomplete="off"
             >
-          </div>
-
-          <div class="form-group">
-            <label for="priority" class="form-label">Prioridad</label>
-            <select id="priority" v-model="priority" class="form-input">
-              <option value="Baja">Baja</option>
-              <option value="Media">Media</option>
-              <option value="Alta">Alta</option>
-            </select>
           </div>
         </div>
 
-        <div class="chronometer-section" v-if="!showEditEndTime" style="display: none">
-          <p class="chronometer-display">{{ formatDuration(chronometerSeconds) }}</p>
-          <div class="chronometer-controls">
-            <button type="button" class="start-button" @click="startChronometer" :disabled="isChronometerRunning">Iniciar</button>
-            <button type="button" class="stop-button" @click="stopChronometer" :disabled="!isChronometerRunning">Detener</button>
-          </div>
-          <p class="chronometer-status">{{ isChronometerRunning ? 'Cronómetro en marcha' : 'Cronómetro detenido' }}</p>
+        <div class="form-group">
+          <label for="priority" class="form-label">Prioridad</label>
+          <select id="priority" v-model="priority" class="form-input" autocomplete="off">
+            <option value="Baja">Baja</option>
+            <option value="Media">Media</option>
+            <option value="Alta">Alta</option>
+          </select>
         </div>
 
         <div class="form-group">
           <label for="description" class="form-label">Descripción </label>
-          <input id="description" v-model="description" class="form-input" type="text" placeholder="Describe los detalles de la actividad..." maxlength="255" />
+          <input 
+            id="description" 
+            v-model="description" 
+            class="form-input" 
+            type="text" 
+            placeholder="Describe los detalles de la actividad..." 
+            maxlength="255" 
+            autocomplete="off"
+          />
         </div>
 
         <div class="action-buttons">
@@ -146,44 +168,103 @@ import BottomNavigation from '@/components/BottomNavigation.vue';
 const router = useRouter();
 
 const allClients = ref([]);
-const allCategories = ref([]);
+const allMedios = ref([]); 
+const allDestinos = ref([]); 
+
 const selectedClient = ref(null);
-const selectedCategory = ref(null);
+const selectedMedio = ref(null); 
+const selectedDestino = ref(null); 
 
 const clientSearch = ref('');
-const categorySearch = ref('');
+const medioSearch = ref(''); 
+const destinoSearch = ref(''); 
+
 const showClientOptions = ref(false);
-const showCategoryOptions = ref(false);
+const showMedioOptions = ref(false); 
+const showDestinoOptions = ref(false); 
 
-// --- INICIO DE LAS MODIFICACIONES ---
+const description = ref('');
 
-// Nueva función auxiliar para obtener la fecha actual en formato 'YYYY-MM-DD' local
+// Helper function to get the current date in 'YYYY-MM-DD' local format
 const getLocalTodayString = () => {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses son 0-indexados
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
   const day = String(today.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
 
-// Inicializa activityDate usando la nueva función para obtener la fecha local
+// Initialize activityDate using the helper function to get the local date
 const activityDate = ref(getLocalTodayString());
 
-// --- FIN DE LAS MODIFICACIONES ---
-
 const startTime = ref('');
-const manualEndTime = ref('');
-const showEditEndTime = ref(false);
+const endTime = ref('');
 const priority = ref('Media');
-
-const manualDurationSeconds = ref(0);
-const chronometerSeconds = ref(0);
-const isChronometerRunning = ref(false);
-let chronometerInterval = null;
 
 const isLoading = ref(false);
 const successMessage = ref('');
 const errorMessage = ref('');
+
+// Refactored function to hide options for all search inputs
+const hideOptions = (stateRef) => {
+  setTimeout(() => {
+    stateRef.value = false;
+  }, 200);
+};
+
+// Functions to handle the logic for the Medio and Destino fields
+const selectMedio = (medio) => {
+  selectedMedio.value = medio;
+  medioSearch.value = medio.descripcion;
+  showMedioOptions.value = false;
+};
+
+const selectDestino = (destino) => {
+  selectedDestino.value = destino;
+  destinoSearch.value = destino.descripcion;
+  showDestinoOptions.value = false;
+};
+
+// Function to fetch data from 'medio' and 'destino' tables
+const fetchMediosAndDestinos = async () => {
+  try {
+    const { data: mediosData, error: mediosError } = await supabase
+      .from('medio')
+      .select('*');
+    if (mediosError) throw mediosError;
+    allMedios.value = mediosData || [];
+
+    const { data: destinosData, error: destinosError } = await supabase
+      .from('destino')
+      .select('*');
+    if (destinosError) throw destinosError;
+    allDestinos.value = destinosData || [];
+  } catch (error) {
+    console.error('Error fetching medios or destinos:', error.message);
+    errorMessage.value = 'Error al cargar medios o destinos.';
+  }
+};
+
+
+// Computed properties for Medio and Destino
+const filteredMedios = computed(() => {
+  if (!medioSearch.value) {
+    return allMedios.value;
+  }
+  return allMedios.value.filter(medio =>
+    medio.descripcion.toLowerCase().includes(medioSearch.value.toLowerCase())
+  );
+});
+
+const filteredDestinos = computed(() => {
+  if (!destinoSearch.value) {
+    return allDestinos.value;
+  }
+  return allDestinos.value.filter(destino =>
+    destino.descripcion.toLowerCase().includes(destinoSearch.value.toLowerCase())
+  );
+});
+
 
 const filteredClients = computed(() => {
   if (!clientSearch.value) {
@@ -194,65 +275,7 @@ const filteredClients = computed(() => {
   );
 });
 
-const filteredCategories = computed(() => {
-  let categoriesToFilter = allCategories.value;
-
-  // Define las categorías permitidas para "MISION TECNOLOGICA" por sus IDs
-  const MISION_TECNOLOGICA_CATEGORY_IDS = [1, 2, 3, 4, 5, 6, 9, 7, 23, 31, 11, ,26, ,28, 27, 19, 18, 20, 32, 34];
-  const MISION_TECNOLOGICA_CLIENT_ID = 94; // El ID que mencionaste
-
-  // Validación: Si el cliente seleccionado es "MISION TECNOLOGICA" (por nombre o ID)
-  if (selectedClient.value && 
-      (selectedClient.value.nombre_cliente === 'MISION TECNOLOGICA' || 
-       selectedClient.value.cliente_id === MISION_TECNOLOGICA_CLIENT_ID)) {
-    
-    // Filtra las categorías para que solo incluyan las permitidas para MISION TECNOLOGICA
-    categoriesToFilter = categoriesToFilter.filter(category =>
-      MISION_TECNOLOGICA_CATEGORY_IDS.includes(category.categoria_id)
-    );
-
-    // Opcional: Si la categoría seleccionada actualmente no está permitida para MISION TECNOLOGICA,
-    // deseleccionarla para evitar que se envíe una categoría inválida.
-    if (selectedCategory.value && !MISION_TECNOLOGICA_CATEGORY_IDS.includes(selectedCategory.value.categoria_id)) {
-      selectedCategory.value = null;
-      categorySearch.value = ''; // Limpiar el campo de búsqueda de categoría
-    }
-  }
-
-  // Aplica el filtro de búsqueda de texto si hay un valor en categorySearch
-  if (categorySearch.value) {
-    return categoriesToFilter.filter(category =>
-      category.nombre_categoria.toLowerCase().includes(categorySearch.value.toLowerCase())
-    );
-  }
-
-  return categoriesToFilter;
-});
-
-// --- Funciones para el cronómetro ---
-const startChronometer = () => {
-  if (!isChronometerRunning.value) {
-    isChronometerRunning.value = true;
-    chronometerInterval = setInterval(() => {
-      chronometerSeconds.value++;
-    }, 1000);
-  }
-};
-
-const stopChronometer = () => {
-  if (isChronometerRunning.value) {
-    isChronometerRunning.value = false;
-    clearInterval(chronometerInterval);
-    manualDurationSeconds.value = chronometerSeconds.value;
-  }
-};
-
-const resetChronometer = () => {
-  stopChronometer();
-  chronometerSeconds.value = 0;
-  manualDurationSeconds.value = 0;
-};
-
+// Helper function to format duration in HH:MM:SS
 const formatDuration = (totalSeconds) => {
   if (totalSeconds < 0) totalSeconds = 0;
   const hours = Math.floor(totalSeconds / 3600);
@@ -262,31 +285,27 @@ const formatDuration = (totalSeconds) => {
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 
-// --- Watchers para calcular la duración manual ---
-watch([startTime, manualEndTime, showEditEndTime], ([newStartTime, newManualEndTime, newShowEditEndTime]) => {
-  if (newShowEditEndTime && newStartTime && newManualEndTime) {
-    const startDateTime = new Date(`${activityDate.value}T${newStartTime}`);
-    let endDateTime = new Date(`${activityDate.value}T${newManualEndTime}`);
+// Computed property to calculate duration from start and end times
+const calculatedDurationSeconds = computed(() => {
+  if (startTime.value && endTime.value) {
+    const startDateTime = new Date(`${activityDate.value}T${startTime.value}`);
+    let endDateTime = new Date(`${activityDate.value}T${endTime.value}`);
 
     if (endDateTime < startDateTime) {
       endDateTime.setDate(endDateTime.getDate() + 1);
     }
 
     const durationMs = endDateTime.getTime() - startDateTime.getTime();
-    manualDurationSeconds.value = Math.floor(durationMs / 1000);
-
-    if (manualDurationSeconds.value < 0) {
-      manualDurationSeconds.value = 0;
-    }
-  } else if (!newShowEditEndTime) {
-    manualDurationSeconds.value = chronometerSeconds.value;
-  } else {
-    manualDurationSeconds.value = 0;
+    return Math.floor(durationMs / 1000);
   }
-}, { immediate: true });
+  return 0;
+});
 
-// --- Funciones de formulario y Supabase ---
-const fetchClientsAndCategories = async () => {
+const formattedDuration = computed(() => formatDuration(calculatedDurationSeconds.value));
+
+
+// --- Form and Supabase functions ---
+const fetchClients = async () => {
   try {
     const user = await getCurrentUser();
     if (!user) {
@@ -301,14 +320,9 @@ const fetchClientsAndCategories = async () => {
     if (clientsError) throw clientsError;
     allClients.value = clientsData || [];
 
-    const { data: categoriesData, error: categoriesError } = await supabase
-      .rpc('get_all_categories');
-
-    if (categoriesError) throw categoriesError;
-    allCategories.value = categoriesData || [];
   } catch (error) {
-    console.error('Error fetching clients or categories:', error.message);
-    errorMessage.value = 'Error al cargar clientes o categorías.';
+    console.error('Error fetching clients:', error.message);
+    errorMessage.value = 'Error al cargar clientes.';
   }
 };
 
@@ -318,34 +332,6 @@ const selectClient = (client) => {
   showClientOptions.value = false;
 };
 
-const selectCategory = (category) => {
-  selectedCategory.value = category;
-  categorySearch.value = category.nombre_categoria;
-  showCategoryOptions.value = false;
-};
-
-const hideClientOptions = () => {
-  setTimeout(() => {
-    showClientOptions.value = false;
-  }, 200);
-};
-
-const hideCategoryOptions = () => {
-  setTimeout(() => {
-    showCategoryOptions.value = false;
-  }, 200);
-};
-
-const toggleEditEndTime = () => {
-  showEditEndTime.value = !showEditEndTime.value;
-
-  if (showEditEndTime.value) {
-    resetChronometer();
-    manualEndTime.value = new Date().toTimeString().split(' ')[0].substring(0, 5);
-  } else {
-    manualEndTime.value = '';
-  }
-};
 
 const saveActivity = async () => {
   isLoading.value = true;
@@ -360,98 +346,46 @@ const saveActivity = async () => {
       return;
     }
 
-    // Validación adicional para asegurar que la categoría seleccionada es válida
-    // después de la lógica de filtrado de MISION TECNOLOGICA
-    if (!selectedClient.value || !selectedCategory.value || !activityDate.value || !startTime.value) {
-      errorMessage.value = 'Por favor, completa los campos obligatorios (Cliente, Categoría, Fecha, Hora de Inicio).';
+    // Validation of mandatory fields
+    if (!selectedClient.value || !activityDate.value || !startTime.value) {
+      errorMessage.value = 'Por favor, completa los campos obligatorios: Cliente, Fecha y Hora de Inicio.';
       return;
     }
-
-    // Asegurarse de que la categoría seleccionada es una de las permitidas si el cliente es MISION TECNOLOGICA
-    const MISION_TECNOLOGICA_CATEGORY_IDS = [1, 2, 3, 4, 5, 6, 9, 7, 23, 31, 11, ,26, ,28, 27, 19, 18, 20, 32, 34];
-    const MISION_TECNOLOGICA_CLIENT_ID = 94;
-    if (selectedClient.value && 
-        (selectedClient.value.nombre_cliente === 'MISION TECNOLOGICA' || 
-         selectedClient.value.cliente_id === MISION_TECNOLOGICA_CLIENT_ID)) {
-        if (!MISION_TECNOLOGICA_CATEGORY_IDS.includes(selectedCategory.value.categoria_id)) {
-            errorMessage.value = 'La categoría seleccionada no es válida para MISION TECNOLOGICA.';
-            return;
-        }
-    }
-
-    let finalDurationSeconds = 0;
-    let finalEndTime = null;
-    let isActivityPending = false;
-    let usedStopwatchFlag = false;
-
-    if (showEditEndTime.value) {
-      if (!manualEndTime.value) {
-        errorMessage.value = 'Por favor, ingresa la hora de fin manual.';
-        return;
-      }
-      finalEndTime = manualEndTime.value;
-      finalDurationSeconds = manualDurationSeconds.value;
-      usedStopwatchFlag = false;
-
-      if (finalDurationSeconds <= 0) {
-          errorMessage.value = 'La hora de fin debe ser posterior a la hora de inicio o la duración debe ser positiva.';
-          return;
-      }
-
-    } else {
-      if (chronometerSeconds.value > 0) {
-        finalDurationSeconds = chronometerSeconds.value;
-        const startDateTime = new Date(`${activityDate.value}T${startTime.value}`);
-        const endDateTime = new Date(startDateTime.getTime() + finalDurationSeconds * 1000);
-        finalEndTime = endDateTime.toTimeString().split(' ')[0].substring(0, 5);
-        usedStopwatchFlag = true;
-      } else {
-        isActivityPending = true;
-        finalDurationSeconds = 0;
-        finalEndTime = null;
-        usedStopwatchFlag = false;
-      }
-    }
     
-    const esJefe = await isUserJefe(user.id);
+    // Determine the activity status based on whether an end time is provided.
+    let finalDurationSeconds = null;
+    let estadoActividadId = 1; // Default to "Pendiente" (id=1)
 
-    let estadoActividadId;
-    if (isActivityPending) {
-        const { data: estadoPendiente } = await supabase
-            .from('estados_actividad')
-            .select('id')
-            .eq('nombre_estado', 'Pendiente')
-            .single();
-        estadoActividadId = estadoPendiente?.id || 1;
-    } else {
-        const { data: estadoCompletado } = await supabase
-            .from('estados_actividad')
-            .select('id')
-            .eq('nombre_estado', 'Completado')
-            .single();
-        estadoActividadId = estadoCompletado?.id || 3;
+    if (endTime.value) {
+      finalDurationSeconds = calculatedDurationSeconds.value;
+      estadoActividadId = 3; // Change to "Completado" (id=3)
     }
+
+    const esJefe = await isUserJefe(user.id);
 
     const { error } = await supabase
         .from('actividades')
         .insert({
-            cliente_id: selectedClient.value.cliente_id,
-            categoria_id: selectedCategory.value.categoria_id,
-            descripcion: description.value || null,
-            fecha_actividad: activityDate.value, // Esto ya es 'YYYY-MM-DD'
-            hora_inicio: startTime.value,
-            hora_fin: finalEndTime,
-            duracion_segundos: finalDurationSeconds,
-            prioridad: priority.value,
-            user_id: user.id,
-            usuario_asignado_id: user.id,
-            estado_actividad_id: estadoActividadId,
-            usado_cronometro: usedStopwatchFlag,
-            creada_por_jefe: esJefe
+          cliente_id: selectedClient.value.cliente_id,
+          descripcion: description.value || null,
+          fecha_actividad: activityDate.value,
+          hora_inicio: startTime.value,
+          hora_fin: endTime.value || null,
+          duracion_segundos: finalDurationSeconds,
+          prioridad: priority.value,
+          user_id: user.id,
+          usuario_asignado_id: user.id,
+          estado_actividad_id: estadoActividadId,
+          usado_cronometro: false,
+          creada_por_jefe: esJefe,
+          // NEW FIELDS:
+          id_medio: selectedMedio.value ? selectedMedio.value.id_medio : null,
+          id_destino: selectedDestino.value ? selectedDestino.value.id_destino : null,
+          categoria_id: 2, // Se añade el valor por defecto
         });
 
     if (error) {
-        throw error;
+      throw error;
     }
 
     successMessage.value = 'Actividad registrada exitosamente!';
@@ -468,64 +402,58 @@ const saveActivity = async () => {
   }
 };
 
-// --- INICIO DE LAS MODIFICACIONES (parte 2) ---
-
 const resetForm = () => {
     selectedClient.value = null;
-    selectedCategory.value = null;
+    selectedMedio.value = null; 
+    selectedDestino.value = null; 
     clientSearch.value = '';
-    categorySearch.value = '';
+    medioSearch.value = ''; 
+    destinoSearch.value = ''; 
     description.value = '';
-    activityDate.value = getLocalTodayString(); // Usa la función para la fecha local
-    startTime.value = new Date().toTimeString().split(' ')[0].substring(0, 5);
-    manualEndTime.value = '';
-    showEditEndTime.value = false;
+    activityDate.value = getLocalTodayString();
+    startTime.value = ''; // Limpiamos la hora de inicio
+    endTime.value = '';
     priority.value = 'Media';
-    resetChronometer();
 };
-
-// --- FIN DE LAS MODIFICACIONES (parte 2) ---
 
 const goBack = () => {
     router.push('/');
 };
 
 onMounted(() => {
-    fetchClientsAndCategories();
-    if (!startTime.value) {
-        startTime.value = new Date().toTimeString().split(' ')[0].substring(0, 5);
-    }
-});
+    // Al montar el componente, establecemos la hora actual
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    startTime.value = `${hours}:${minutes}`;
 
-onUnmounted(() => {
-    if (chronometerInterval) {
-        clearInterval(chronometerInterval);
-    }
+    fetchClients();
+    fetchMediosAndDestinos();
 });
 </script>
 
 <style scoped>
-/* Contenedor principal y estructura general */
-/* Este contenedor ahora se adaptará al ancho de la pantalla */
+/* Main container and general structure */
+/* This container will now adapt to the screen width */
 .phone-mockup {
   width: 100%;
-  max-width: 1000px; /* Ancho amplio para escritorio */
+  max-width: 1000px; /* Wide width for desktop */
   background: #fff;
   border-radius: 30px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  height: 800px; /* Altura ajustada a 900px para evitar scrollbar */
+  height: 800px; /* Height adjusted to 900px to avoid scrollbar */
   overflow: hidden;
   position: relative;
-  margin: 20px auto; /* Centra el contenedor */
+  margin: 20px auto; /* Centers the container */
 }
 
 .register-activity-mockup {
   padding: 0;
 }
 
-/* Encabezado */
+/* Header */
 .register-activity-header {
   background-color: var(--primary-color);
   color: #fff;
@@ -537,7 +465,7 @@ onUnmounted(() => {
   border-top-left-radius: 30px;
   border-top-right-radius: 30px;
   position: relative;
-  flex-shrink: 0; /* Evita que el header se encoja */
+  flex-shrink: 0; /* Prevents the header from shrinking */
 }
 
 .register-activity-header .title {
@@ -567,19 +495,19 @@ onUnmounted(() => {
   background-color: var(--accent-purple);
 }
 
-/* Contenido principal del formulario */
+/* Main form content */
 .register-activity-content {
   flex-grow: 1;
   padding: 20px 30px;
   overflow-y: auto;
-  min-height: 0; /* Permite que el contenido se encoja si es necesario */
-  position: relative; /* Para posicionar el error de forma absoluta */
+  min-height: 0; /* Allows content to shrink if needed */
+  position: relative; /* For absolute positioning of the error icon */
 }
 
-/* Grupos de formulario */
+/* Form groups */
 .form-group {
   margin-bottom: 20px;
-  flex-shrink: 0; /* Evita que los grupos se encojan */
+  flex-shrink: 0; /* Prevents groups from shrinking */
 }
 
 .form-label {
@@ -607,11 +535,11 @@ onUnmounted(() => {
   box-shadow: 0 0 0 3px rgba(0, 102, 246, 0.15);
 }
 
-/* Estilos específicos para select */
+/* Specific styles for select */
 select.form-input {
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%234A55A2'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%234A55A2'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 15px center;
   background-size: 1em;
@@ -619,7 +547,7 @@ select.form-input {
 }
 
 
-/* Diseño de dos columnas para algunos grupos */
+/* Two-column layout for some groups */
 .two-columns-group {
   display: flex;
   gap: 20px;
@@ -631,7 +559,7 @@ select.form-input {
   margin-bottom: 0;
 }
 
-/* Input con botón (para la hora de inicio) */
+/* Input with button (for start time) */
 .input-with-button {
   display: flex;
   gap: 10px;
@@ -642,7 +570,7 @@ select.form-input {
   flex-grow: 1;
 }
 
-/* Estilo para el botón "Editar" */
+/* Style for the "Edit" button */
 .btn-edit {
   background-color: #FFFFFF;
   color: var(--primary-color);
@@ -682,92 +610,12 @@ select.form-input {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-/* Sección del cronómetro */
-.chronometer-section {
-  text-align: center;
-  margin-bottom: 10px; /* Más reducido */
-  background-color: var(--secondary-color);
-  color: #fff;
-  border-radius: 12px;
-  padding: 8px 6px; /* Más reducido */
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
-  flex-shrink: 0;
-}
-
-.chronometer-display {
-  font-size: 1.4em; /* Más reducido */
-  font-weight: 700;
-  color: #7a7a7a;
-  margin-bottom: 6px; /* Más reducido */
-  font-family: 'Roboto Mono', monospace;
-}
-
-.chronometer-controls {
-  display: flex;
-  justify-content: center;
-  gap: 6px; /* Más reducido */
-  margin-bottom: 4px; /* Más reducido */
-}
-
-.chronometer-controls button {
-  padding: 6px 12px; /* Más reducido */
-  border: none;
-  border-radius: 8px;
-  font-size: 0.95em; /* Más reducido */
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-}
-
-.start-button {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.start-button:hover:not(:disabled) {
-  background-color: #45a049;
-  transform: translateY(-2px);
-}
-
-.start-button:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.stop-button {
-  background-color: #F44336;
-  color: white;
-}
-
-.stop-button:hover:not(:disabled) {
-  background-color: #da3e32;
-  transform: translateY(-2px);
-}
-
-.stop-button:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.chronometer-controls button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.chronometer-status {
-  font-size: 0.75em; /* Más reducido */
-  color: var(--text-color-medium);
-  margin-bottom: 0;
-}
-
-/* Botones de acción al final del formulario */
+/* Action buttons at the bottom of the form */
 .action-buttons {
   display: flex;
   justify-content: center;
   margin-top: 30px;
-  flex-shrink: 0; /* Evita que los botones se encojan */
+  flex-shrink: 0; /* Prevents buttons from shrinking */
 }
 
 .action-buttons button {
@@ -808,14 +656,14 @@ select.form-input {
   box-shadow: none;
 }
 
-/* Mensajes de éxito y error */
+/* Success and error messages */
 .success-message {
   color: var(--success-color);
   text-align: center;
   margin-top: 20px;
   font-size: 15px;
   font-weight: 500;
-  flex-shrink: 0; /* Evita que los mensajes se encojan */
+  flex-shrink: 0; /* Prevents messages from shrinking */
 }
 
 .error-message {
@@ -833,27 +681,27 @@ select.form-input {
   z-index: 2;
 }
 
-/* Media queries para responsividad */
-@media (max-width: 768px) { /* Este breakpoint es para tablets y móviles */
+/* Media queries for responsiveness */
+@media (max-width: 768px) { /* This breakpoint is for tablets and mobile phones */
   .phone-mockup {
-    width: 100%; /* Ocupa todo el ancho en pantallas más pequeñas */
-    max-width: none; /* Elimina el límite de ancho máximo */
-    border-radius: 0; /* Sin bordes redondeados en los extremos para ocupar toda la pantalla */
-    height: 100vh; /* Ocupa toda la altura de la vista */
-    margin: 0; /* Elimina el margen para que se pegue a los bordes */
-    box-shadow: none; /* Quita la sombra para una apariencia de "app" nativa */
+    width: 100%; /* Takes up the entire width on smaller screens */
+    max-width: none; /* Removes the maximum width limit */
+    border-radius: 0; /* No rounded borders at the ends to take up the entire screen */
+    height: 100vh; /* Takes up the entire viewport height */
+    margin: 0; /* Removes the margin to stick to the edges */
+    box-shadow: none; /* Removes the shadow for a native "app" appearance */
   }
 
   
 
   .register-activity-header {
-    border-top-left-radius: 0; /* Quita los bordes redondeados del header */
+    border-top-left-radius: 0; /* Removes the rounded borders of the header */
     border-top-right-radius: 0;
   }
 
   .register-activity-content {
     padding: 15px 20px;
-    padding-bottom: 90px; /* Ajusta el padding para móviles */
+    padding-bottom: 90px; /* Adjusts the padding for mobile */
   }
 
   .form-input, select.form-input {
@@ -862,7 +710,7 @@ select.form-input {
   }
 
   .two-columns-group {
-    flex-direction: column; /* Apilar columnas en pantallas pequeñas */
+    flex-direction: column; /* Stack columns on small screens */
     gap: 15px;
   }
   .chronometer-display {
@@ -875,7 +723,7 @@ select.form-input {
   .action-buttons button {
     padding: 14px;
     font-size: 16px;
-    max-width: 100%; /* Asegura que en móviles ocupe el 100% */
+    max-width: 100%; /* Ensures it takes up 100% on mobile */
   }
   .btn-edit {
     width: 45px;
@@ -884,7 +732,7 @@ select.form-input {
   }
 }
 
-/* Icono flotante de error */
+/* Floating error icon */
 .floating-error-icon {
   position: fixed;
   left: 40px;
@@ -907,7 +755,7 @@ select.form-input {
   display: block;
 }
 
-/* Estilos para el nuevo componente de búsqueda */
+/* Styles for the new search component */
 .search-select-container {
   position: relative;
 }

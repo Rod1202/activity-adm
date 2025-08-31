@@ -1,17 +1,20 @@
 <template>
-  <div class="activity-card" :class="{'activity-completed': isCompleted, 'activity-pending': isPending}" @click="editActivity">
+  <div class="activity-card" :class="{ 'activity-completed': isCompleted, 'activity-pending': isPending }"
+    @click="editActivity">
     <div class="activity-icon">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-        <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.438-.695Z" clip-rule="evenodd" />
+        <path fill-rule="evenodd"
+          d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.438-.695Z"
+          clip-rule="evenodd" />
       </svg>
     </div>
     <div class="activity-info">
       <div class="activity-header">
         <span class="client-name">{{ activity.clientes_nombre_cliente || 'Sin cliente' }}</span>
-        <span class="category-name">{{ activity.categoriasactividad_nombre_categoria || 'Sin categoría' }}</span>
+        <span class="medio-name">{{ activity.medios_descripcion || 'Sin medio' }}</span>
       </div>
       <p class="activity-description">{{ activity.descripcion || 'Sin descripción.' }}</p>
-      
+
       <div class="activity-time-and-status">
         <div class="time-info">
           <span class="start-time">Hora de Inicio: {{ formattedStartTime }}</span>
@@ -42,18 +45,18 @@ const editActivity = () => {
 
 // Determinar el estado de la actividad
 const isPending = computed(() => {
-  return props.activity.estado_actividad_id === 1 || 
-             props.activity.estados_actividad_nombre_estado === 'Pendiente';
+  return props.activity.estado_actividad_id === 1 ||
+    props.activity.estados_actividad_nombre_estado === 'Pendiente';
 });
 
 const isCompleted = computed(() => {
-  return props.activity.estado_actividad_id === 3 || 
-             props.activity.estados_actividad_nombre_estado === 'Completado';
+  return props.activity.estado_actividad_id === 3 ||
+    props.activity.estados_actividad_nombre_estado === 'Completado';
 });
 
 const isCanceled = computed(() => {
-  return props.activity.estado_actividad_id === 4 || 
-             props.activity.estados_actividad_nombre_estado === 'Cancelado';
+  return props.activity.estado_actividad_id === 4 ||
+    props.activity.estados_actividad_nombre_estado === 'Cancelado';
 });
 
 const activityStatus = computed(() => {
@@ -84,10 +87,10 @@ const formattedStartTime = computed(() => {
     date.setSeconds(0); // Asegura que los segundos son 0 si no están presentes
 
     // Formatear a hora local con AM/PM
-    return date.toLocaleTimeString('es-ES', { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      hour12: true 
+    return date.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
     });
   } catch (e) {
     console.error('Error al formatear hora de inicio:', e);
@@ -157,7 +160,7 @@ const formatDuration = (seconds) => {
   margin-right: 10px;
 }
 
-.category-name {
+.medio-name {
   font-size: 0.9em;
   color: var(--secondary-color);
   background-color: rgb(247, 201, 0);
@@ -169,29 +172,40 @@ const formatDuration = (seconds) => {
 /* NUEVO CONTENEDOR PARA TIEMPO Y ESTADO */
 .activity-time-and-status {
   display: flex;
-  justify-content: space-between; /* Espacio entre el tiempo y el estado */
+  justify-content: space-between;
+  /* Espacio entre el tiempo y el estado */
   align-items: center;
-  margin-top: 5px; /* Margen superior para separarlo de la descripción */
-  flex-wrap: wrap; /* Permitir que se envuelva en pantallas pequeñas */
+  margin-top: 5px;
+  /* Margen superior para separarlo de la descripción */
+  flex-wrap: wrap;
+  /* Permitir que se envuelva en pantallas pequeñas */
 }
 
 .time-info {
-  font-size: 0.9em; /* Un poco más pequeño para los detalles de tiempo */
-  color: var(--text-color-light); /* Color más suave */
+  font-size: 0.9em;
+  /* Un poco más pequeño para los detalles de tiempo */
+  color: var(--text-color-light);
+  /* Color más suave */
   display: flex;
   align-items: center;
-  flex-wrap: wrap; /* Asegurar que "Hora de Inicio" y "Tiempo Transcurrido" también se envuelvan si es necesario */
+  flex-wrap: wrap;
+  /* Asegurar que "Hora de Inicio" y "Tiempo Transcurrido" también se envuelvan si es necesario */
 }
 
 .start-time {
-    font-weight: 600; /* Hora de inicio más prominente */
-    color: var(--primary-color); /* Color primario para la hora de inicio */
+  font-weight: 600;
+  /* Hora de inicio más prominente */
+  color: var(--primary-color);
+  /* Color primario para la hora de inicio */
 }
 
 .time-elapsed {
-    font-weight: 600; /* También prominente */
-    color: var(--primary-color); /* Color primario para el tiempo transcurrido */
-    margin-left: 5px; /* Pequeño margen entre ellos */
+  font-weight: 600;
+  /* También prominente */
+  color: var(--primary-color);
+  /* Color primario para el tiempo transcurrido */
+  margin-left: 5px;
+  /* Pequeño margen entre ellos */
 }
 
 
@@ -201,7 +215,7 @@ const formatDuration = (seconds) => {
   border-radius: 10px;
   font-weight: 500;
   /* Asegura que el estado no se encoja y mantenga su tamaño */
-  flex-shrink: 0; 
+  flex-shrink: 0;
 }
 
 .status-completed {
@@ -236,8 +250,8 @@ const formatDuration = (seconds) => {
 
 /* Eliminar .time-used, ya que ahora está dentro de .time-info */
 /* .time-used {
-  font-weight: 700;
-  color: var(--primary-color);
-  font-size: 1em;
+font-weight: 700;
+color: var(--primary-color);
+font-size: 1em;
 } */
 </style>

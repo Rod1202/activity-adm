@@ -3,7 +3,7 @@
     <header class="dashboard-header">
       <div class="header-content">
         <button class="back-button" @click="goBack">
-        <i class="fi fi-sr-undo"></i>
+          <i class="fi fi-sr-undo"></i>
         </button>
         <h1 class="header-title">Editar Actividad</h1>
       </div>
@@ -21,18 +21,18 @@
         </div>
 
         <div class="form-group">
-          <label>Categoría:</label>
-          <input type="text" :value="activity.categoriasactividad_nombre_categoria || 'N/A'" disabled class="styled-input" />
+          <label>Medio:</label>
+          <input type="text" :value="activity.medios_descripcion || 'Sin medio'" disabled class="styled-input" />
         </div>
 
         <div class="form-group">
-          <label for="description">Descripción :</label>
+          <label for="description">Descripción:</label>
           <textarea id="description" v-model="activity.descripcion" class="styled-input"></textarea>
         </div>
 
         <div class="form-group">
           <label for="startTime">Hora de Inicio:</label>
-          <input type="time" id="startTime" v-model="activity.hora_inicio" disabled class="styled-input" />
+          <input type="time" id="startTime" :value="activity.hora_inicio.substring(0, 5)" disabled class="styled-input" />
         </div>
 
         <div class="form-group" v-if="activity.estado_actividad_nombre === 'Pendiente' || activity.estado_actividad_nombre === 'En Progreso'">
@@ -48,7 +48,6 @@
           <button type="button" @click="cancelActivity" class="styled-button danger-button" :disabled="isSaving">
             Cancelar Actividad
           </button>
-          
         </div>
       </form>
       <div v-else-if="!activity && !isLoadingActivity" class="no-activity-message">
@@ -63,9 +62,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { supabase } from '@/services/supabaseClient'; 
+import { supabase } from '@/services/supabaseClient';
 import { getCurrentUser } from '@/services/authService';
-import BottomNavigation from '../components/BottomNavigation.vue'; // Asegúrate de que la ruta sea correcta
+import BottomNavigation from '../components/BottomNavigation.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -96,6 +95,7 @@ const fetchActivity = async () => {
       return;
     }
 
+    // Aquí ajustamos la llamada a la función rpc para traer el medio
     const { data, error } = await supabase
       .rpc('get_activity_by_id', { p_activity_id: activityId, p_user_id: user.id });
 
