@@ -92,12 +92,18 @@ export const getAllUsers = async () => {
 export const getUserActivities = async (userId, filters = {}) => {
     if (!userId || !filters.fecha) return [];
 
+    // Ahora la llamada es directa a la función get_activities_for_card
     const { data, error } = await supabase
         .rpc('get_activities_for_card', {
             p_user_id: userId,
             p_fecha: filters.fecha
         });
 
-    if (error) throw error;
+    if (error) {
+        console.error('Error al llamar a la función de Supabase:', error);
+        throw error;
+    }
+    
+    // Si la función devuelve null o un objeto inesperado, asegúrate de devolver un array vacío
     return data || [];
 };
