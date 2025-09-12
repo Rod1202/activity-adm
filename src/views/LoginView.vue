@@ -31,7 +31,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { signInWithEmailAndPassword } from '@/services/authService';
+import { signInWithEmailAndPassword, getCurrentUserData } from '@/services/authService';
 
 const email = ref('');
 const password = ref('');
@@ -43,8 +43,18 @@ const handleLogin = async () => {
   isLoading.value = true;
   error.value = null;
   try {
+    // Autentica al usuario
     await signInWithEmailAndPassword(email.value, password.value);
-    router.push('/');
+
+    // Obtiene los datos del perfil para verificar el rol
+    const userData = await getCurrentUserData();
+
+    // Redirige al usuario según su rol
+    if (userData && userData.rol_id === 3) {
+      router.push('/device-register');
+    } else {
+      router.push('/');
+    }
   } catch (err) {
     console.error('Error al iniciar sesión:', err.message);
     error.value = err.message || 'Error desconocido al iniciar sesión.';

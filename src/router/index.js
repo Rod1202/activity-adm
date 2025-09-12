@@ -1,21 +1,22 @@
-// src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router';
 import { supabase } from '../services/supabaseClient';
 import { getCurrentUserData, hasRole } from '../services/authService';
 
 // Importa tus componentes de vista
 import LoginView from '../views/LoginView.vue';
-import DashboardView from '../views/DashboardView.vue'; // Tu vista de actividades
+import DashboardView from '../views/DashboardView.vue';
 import EditActivityView from '../views/EditActivityView.vue';
 import RegisterActivityView from '../views/RegisterActivityView.vue';
 import AdminReportsView from '../views/AdminReportsView.vue';
-import ClientsView from '../views/ClientsView.vue'; // <-- Importa la nueva vista de gestión de clientes
-
-// --- NUEVAS VISTAS PARA EL BOTTOM NAVIGATION ---
+import ClientsView from '../views/ClientsView.vue';
 import NotificationsView from '../views/NotificationsView.vue';
 import ProfileView from '../views/ProfileView.vue';
-import CalendarPickerView from '../views/CalendarPickerView.vue'; // <-- Importa la nueva vista de calendario
-import AssignActivityView from '../views/AssignActivityView.vue'; // <-- Importa la nueva vista de asignación
+import CalendarPickerView from '../views/CalendarPickerView.vue';
+import AssignActivityView from '../views/AssignActivityView.vue';
+import DeviceRegisterView from '../views/DeviceRegisterView.vue';
+import SelectCategoryActivity from '../views/SelectCategoryActivity.vue';
+import SelectSubCategoryActivity from '../views/SelectSubCategoryActivity.vue';
+import RegisterActivityTecnical from '../views/RegisterActivityTecnical.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,7 +28,7 @@ const router = createRouter({
     },
     {
       path: '/',
-      name: 'dashboard', // Mantén el nombre 'dashboard' o cámbialo a 'activities-list' si prefieres
+      name: 'dashboard',
       component: DashboardView,
       meta: { requiresAuth: true },
     },
@@ -38,9 +39,9 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/calendar', // Ruta para el icono "Calendar" del BottomNavigation
-      name: 'calendar', // Nombre de la ruta para el calendario interactivo
-      component: CalendarPickerView, // Asigna el nuevo componente de calendario
+      path: '/calendar',
+      name: 'calendar',
+      component: CalendarPickerView,
       meta: { requiresAuth: true },
     },
     {
@@ -65,25 +66,49 @@ const router = createRouter({
       path: '/admin-reports',
       name: 'admin-reports',
       component: AdminReportsView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
       path: '/clients',
       name: 'clients',
       component: ClientsView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
-    path: '/edit-activity/:id', // Ruta con parámetro dinámico 'id'
-    name: 'EditActivity',
-    component: EditActivityView,
-    meta: { requiresAuth: true }
+      path: '/edit-activity/:id',
+      name: 'EditActivity',
+      component: EditActivityView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/assign-activity',
       name: 'assign-activity',
       component: AssignActivityView,
       meta: { requiresAuth: true, requiresJefe: true },
+    },
+    {
+      path: '/device-register',
+      name: 'device-register',
+      component: DeviceRegisterView,
+      meta: { requiresAuth: true, requiresTecnico: true },
+    },
+    {
+      path: '/select-category',
+      name: 'select-category',
+      component: SelectCategoryActivity,
+      meta: { requiresAuth: true, requiresTecnico: true },
+    },
+    {
+      path: '/select-subcategory',
+      name: 'select-subcategory',
+      component: SelectSubCategoryActivity,
+      meta: { requiresAuth: true, requiresTecnico: true },
+    },
+    {
+      path: '/register-activity-tecnical',
+      name: 'register-activity-tecnical',
+      component: RegisterActivityTecnical,
+      meta: { requiresAuth: true, requiresTecnico: true },
     },
     {
       path: '/:pathMatch(.*)*',
@@ -93,32 +118,40 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  const { data: { session }, error } = await supabase.auth.getSession();
-  const requiresAuth = to.meta.requiresAuth;
+  const { data: { session } } = await supabase.auth.getSession();
   const isLoggedIn = !!session;
+  const userData = isLoggedIn ? await getCurrentUserData() : null;
 
-  if (requiresAuth && !isLoggedIn) {
-    next('/login');
-    return;
-  } 
-  
-  if (to.name === 'login' && isLoggedIn) {
-    next('/');
+  // 1. Si la ruta requiere autenticación y el usuario no está logueado, redirige al login.
+  if (to.matched.some(record => record.meta.requiresAuth) && !isLoggedIn) {
+    next({ name: 'login' });
     return;
   }
-  
-  // Verificar permisos para rutas específicas
-  if (isLoggedIn && (to.name === 'admin-reports' || to.name === 'clients' || to.meta.requiresJefe)) {
-    // Verificar si el usuario tiene rol de administrador (1) o jefe (4, 5, 6, 7)
-    const tienePermiso = await hasRole([1, 4, 5, 6, 7]);
-    if (!tienePermiso) {
-      // Si no tiene permiso, redirigir al dashboard
-      next('/');
+
+  // 2. Si el usuario está logueado, verifica los roles
+  if (isLoggedIn) {
+    // Si la ruta requiere el rol de Admin y el usuario no tiene ese rol, redirige al dashboard.
+    if (to.matched.some(record => record.meta.requiresAdmin) && !(userData && await hasRole([1, 4, 5, 6, 7]))) {
+      next({ name: 'dashboard' });
+      return;
+    }
+
+    // Si la ruta requiere el rol de Jefe y el usuario no tiene ese rol, redirige al dashboard.
+    if (to.matched.some(record => record.meta.requiresJefe) && !(userData && await hasRole([4, 5, 6, 7]))) {
+      next({ name: 'dashboard' });
+      return;
+    }
+
+    // Si la ruta requiere el rol de Técnico y el usuario no tiene ese rol, redirige al dashboard.
+    // Esta es la corrección clave.
+    if (to.matched.some(record => record.meta.requiresTecnico) && !(userData && userData.rol_id === 3)) {
+      next({ name: 'dashboard' });
       return;
     }
   }
-  
+
+  // 3. Permite la navegación si todas las condiciones se cumplen
   next();
 });
 
-export default router;
+export default router
