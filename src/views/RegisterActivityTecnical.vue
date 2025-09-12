@@ -8,7 +8,7 @@
       <div class="w-10"></div>
     </header>
     <main class="flex-1 overflow-y-auto px-6 py-8">
-      <h2 class="text-2xl font-medium text-[var(--text-primary)]">Limpieza de Compresor</h2>
+      <h2 class="text-2xl font-medium text-[var(--text-primary)]">Despiece de impresora</h2>
       <div class="mt-8">
         <label class="block text-sm font-medium text-[var(--text-secondary)]" for="assigned-time">Tiempo Asignado</label>
         <div class="mt-2 relative">

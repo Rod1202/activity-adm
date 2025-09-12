@@ -24,56 +24,56 @@
           <div class="flex size-12 items-center justify-center rounded-full bg-gray-100 text-gray-600">
             <span class="material-symbols-outlined">engineering</span>
           </div>
-          <p class="flex-1 truncate text-base font-medium text-gray-800">Mantenimiento preventivo</p>
+          <p class="flex-1 truncate text-base font-medium text-gray-800">Despiece de Impresora</p>
           <span class="material-symbols-outlined text-gray-400">chevron_right</span>
         </a>
         <a @click="goToRegisterActivityTecnical" class="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 border-t border-gray-100">
           <div class="flex size-12 items-center justify-center rounded-full bg-gray-100 text-gray-600">
             <span class="material-symbols-outlined">oil_barrel</span>
           </div>
-          <p class="flex-1 truncate text-base font-medium text-gray-800">Cambio de aceite y filtros</p>
+          <p class="flex-1 truncate text-base font-medium text-gray-800">Limpieza de ADF</p>
           <span class="material-symbols-outlined text-gray-400">chevron_right</span>
         </a>
         <a @click="goToRegisterActivityTecnical" class="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 border-t border-gray-100">
           <div class="flex size-12 items-center justify-center rounded-full bg-gray-100 text-gray-600">
             <span class="material-symbols-outlined">tire_repair</span>
           </div>
-          <p class="flex-1 truncate text-base font-medium text-gray-800">Inspección de frenos</p>
+          <p class="flex-1 truncate text-base font-medium text-gray-800">Limpieza de Laser</p>
           <span class="material-symbols-outlined text-gray-400">chevron_right</span>
         </a>
         <a @click="goToRegisterActivityTecnical" class="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 border-t border-gray-100">
           <div class="flex size-12 items-center justify-center rounded-full bg-gray-100 text-gray-600">
             <span class="material-symbols-outlined">tire_repair</span>
           </div>
-          <p class="flex-1 truncate text-base font-medium text-gray-800">Rotación y balanceo de neumáticos</p>
+          <p class="flex-1 truncate text-base font-medium text-gray-800">Limpieza de Tapas</p>
           <span class="material-symbols-outlined text-gray-400">chevron_right</span>
         </a>
         <a @click="goToRegisterActivityTecnical" class="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 border-t border-gray-100">
           <div class="flex size-12 items-center justify-center rounded-full bg-gray-100 text-gray-600">
             <span class="material-symbols-outlined">battery_charging_full</span>
           </div>
-          <p class="flex-1 truncate text-base font-medium text-gray-800">Revisión de batería</p>
+          <p class="flex-1 truncate text-base font-medium text-gray-800">Revision de placas</p>
           <span class="material-symbols-outlined text-gray-400">chevron_right</span>
         </a>
         <a @click="goToRegisterActivityTecnical" class="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 border-t border-gray-100">
           <div class="flex size-12 items-center justify-center rounded-full bg-gray-100 text-gray-600">
             <span class="material-symbols-outlined">ac_unit</span>
           </div>
-          <p class="flex-1 truncate text-base font-medium text-gray-800">Mantenimiento de aire acondicionado</p>
+          <p class="flex-1 truncate text-base font-medium text-gray-800">Actualización de Software</p>
           <span class="material-symbols-outlined text-gray-400">chevron_right</span>
         </a>
         <a @click="goToRegisterActivityTecnical" class="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 border-t border-gray-100">
           <div class="flex size-12 items-center justify-center rounded-full bg-gray-100 text-gray-600">
             <span class="material-symbols-outlined">light</span>
           </div>
-          <p class="flex-1 truncate text-base font-medium text-gray-800">Inspección de luces</p>
+          <p class="flex-1 truncate text-base font-medium text-gray-800">Pruebas de estres</p>
           <span class="material-symbols-outlined text-gray-400">chevron_right</span>
         </a>
         <a @click="goToRegisterActivityTecnical" class="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 border-t border-gray-100">
           <div class="flex size-12 items-center justify-center rounded-full bg-gray-100 text-gray-600">
             <span class="material-symbols-outlined">water_drop</span>
           </div>
-          <p class="flex-1 truncate text-base font-medium text-gray-800">Revisión de niveles de fluidos</p>
+          <p class="flex-1 truncate text-base font-medium text-gray-800">Embalaje de impresora</p>
           <span class="material-symbols-outlined text-gray-400">chevron_right</span>
         </a>
       </div>
