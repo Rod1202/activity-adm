@@ -99,9 +99,10 @@ const router = createRouter({
       meta: { requiresAuth: true, requiresTecnico: true },
     },
     {
-      path: '/select-subcategory',
+      path: '/select-subcategory/:categoryId',
       name: 'select-subcategory',
       component: SelectSubCategoryActivity,
+      props: true,
       meta: { requiresAuth: true, requiresTecnico: true },
     },
     {
@@ -146,6 +147,12 @@ router.beforeEach(async (to, from, next) => {
     // Esta es la corrección clave.
     if (to.matched.some(record => record.meta.requiresTecnico) && !(userData && userData.rol_id === 3)) {
       next({ name: 'dashboard' });
+      return;
+    }
+
+    // Si el usuario es un técnico, no debe poder acceder a la vista de registro de actividad general.
+    if (userData && userData.rol_id === 3 && to.name === 'register-activity') {
+      next({ name: 'dashboard' }); // O a la ruta que consideres apropiada para técnicos
       return;
     }
   }

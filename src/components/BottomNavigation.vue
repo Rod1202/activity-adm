@@ -29,13 +29,16 @@ const goTo = async (routeName) => {
   if (routeName === 'register-activity') {
     const user = await getCurrentUser();
     if (user) {
-      // Llama a la función RPC para obtener los datos del usuario, incluido el rol
       const userData = await getCurrentUserData(user.id);
-      const esJefe = userData && [4, 5, 6, 7].includes(userData.rol_id);
       
-      if (esJefe) {
+      if (userData && userData.rol_id === 3) {
+        // Si es técnico, redirigir a la vista de registro de dispositivo
+        router.push('/device-register');
+      } else if (userData && [4, 5, 6, 7].includes(userData.rol_id)) {
+        // Si es jefe, redirigir a la vista de asignación
         router.push('/assign-activity');
       } else {
+        // Para otros roles, redirigir a la vista de registro de actividad general
         router.push('/register-activity');
       }
     } else {

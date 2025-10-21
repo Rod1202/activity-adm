@@ -10,8 +10,8 @@
     </div>
     <div class="activity-info">
       <div class="activity-header">
-        <span class="client-name">{{ activity.clientes_nombre_cliente || 'Sin cliente' }}</span>
-        <span class="medio-name">{{ activity.medios_descripcion || 'Sin medio' }}</span>
+        <span class="client-name">{{ activity.cliente_nombre || activity.clientes_nombre_cliente || 'Sin cliente' }}</span>
+        <span class="medio-name">{{ activity.proyecto_nombre || activity.medios_descripcion || 'Sin medio' }}</span>
       </div>
       <p class="activity-description">{{ activity.descripcion || 'Sin descripción.' }}</p>
 

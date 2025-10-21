@@ -107,3 +107,38 @@ export const getUserActivities = async (userId, filters = {}) => {
     // Si la función devuelve null o un objeto inesperado, asegúrate de devolver un array vacío
     return data || [];
 };
+
+/**
+ * Obtiene las actividades de un técnico para una fecha específica.
+ * @param {string} userId - El ID del usuario técnico.
+ * @param {string} fecha - La fecha en formato 'YYYY-MM-DD'.
+ * @returns {Promise<Array>} - Una promesa que resuelve a un array de actividades del técnico.
+ */
+export const getTecnicoActivities = async (userId, fecha) => {
+  if (!userId || !fecha) return [];
+
+  const { data, error } = await supabase
+    .from('actividades_tecnico')
+    .select(`
+      *,
+      categoria:id_categoria (nombre),
+      subcategoria:id_subcategoria (nombre),
+      estados_actividad:estado_actividad_id (nombre_estado)
+    `)
+    .eq('user_id', userId)
+    .eq('fecha_actividad', fecha);
+
+  if (error) {
+    console.error('Error al obtener las actividades del técnico:', error);
+    throw error;
+  }
+
+  // Mapear los resultados para que coincidan con la estructura esperada por ActivityCard
+  return data.map(activity => ({
+    ...activity,
+    cliente_nombre: activity.categoria.nombre, // Usar nombre de categoría como "cliente"
+    proyecto_nombre: activity.subcategoria.nombre, // Usar nombre de subcategoría como "proyecto"
+    estados_actividad_nombre_estado: activity.estados_actividad.nombre_estado,
+    actividad_id: activity.id_actividad_tecnico // Asegurarse de que haya un ID único
+  }));
+};

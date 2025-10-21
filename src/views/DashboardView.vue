@@ -32,11 +32,20 @@
           Cargando actividades...
         </div>
         <div v-else>
-          <ActivityCard
-            v-for="activity in filteredActivities"
-            :key="activity.actividad_id"
-            :activity="activity"
-          />
+          <div v-if="isTecnico">
+            <ActivityTecnicoCard
+              v-for="activity in filteredActivities"
+              :key="activity.actividad_id"
+              :activity="activity"
+            />
+          </div>
+          <div v-else>
+            <ActivityCard
+              v-for="activity in filteredActivities"
+              :key="activity.actividad_id"
+              :activity="activity"
+            />
+          </div>
         </div>
       </section>
     </main>
@@ -48,12 +57,13 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { getCurrentUser } from '@/services/authService';
+import { getCurrentUser, getCurrentUserData } from '@/services/authService';
 import { supabase } from '@/services/supabaseClient';
-import { getUserActivities } from '@/services/userService';
+import { getUserActivities, getTecnicoActivities } from '@/services/userService';
 import { getPeruTimezoneDate, formatDateToYYYYMMDD, parseYYYYMMDD } from '@/utils/dateUtils';
 
 import ActivityCard from '@/components/ActivityCard.vue';
+import ActivityTecnicoCard from '@/components/ActivityTecnicoCard.vue';
 import BottomNavigation from '@/components/BottomNavigation.vue'; 
 
 const router = useRouter();
@@ -63,6 +73,7 @@ const selectedDate = ref(getPeruTimezoneDate()); // Use utility function
 const activities = ref([]);
 const isLoadingActivities = ref(false);
 const currentTab = ref('inProgress');
+const isTecnico = ref(false);
 
 // Computed property para el total de horas usadas
 const totalHoursUsed = computed(() => {
@@ -148,15 +159,21 @@ const fetchActivities = async () => {
       return;
     }
 
-    const formattedDate = formatDateToYYYYMMDD(selectedDate.value); // Use utility function
+    const userData = await getCurrentUserData();
+    isTecnico.value = userData && userData.rol_id === 3;
+    const formattedDate = formatDateToYYYYMMDD(selectedDate.value);
+    let activitiesData = [];
 
-    // Usar el nuevo servicio para obtener actividades
-    const activitiesData = await getUserActivities(user.id, {
-      fecha: formattedDate
-    });
+    if (isTecnico.value) {
+      // Si el usuario es técnico, obtener sus actividades específicas
+      activitiesData = await getTecnicoActivities(user.id, formattedDate);
+    } else {
+      // Para otros roles, obtener las actividades generales
+      activitiesData = await getUserActivities(user.id, {
+        fecha: formattedDate,
+      });
+    }
     
-    // IMPORTANTE: Asegúrate de que los datos de la API incluyan
-    // 'estados_actividad_nombre_estado' para que la lógica de filteredActivities funcione.
     activities.value = activitiesData || [];
   } catch (err) {
     console.error('Error al cargar actividades:', err.message);
